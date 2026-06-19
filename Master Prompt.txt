@@ -1,0 +1,2332 @@
+# MASTER CODEX PROMPT
+
+## Build a Semi-Autonomous AI System for Mapping, Coding, Reviewing and Monitoring International Critical Raw Materials Agreements
+
+You are acting as a senior AI systems architect, legal-NLP engineer, data engineer, full-stack Python developer, research software engineer and applied econometrician.
+
+Your task is to design and implement a production-quality, semi-autonomous, human-in-the-loop research platform for analysing international agreements concerning critical raw materials, hereafter “CRM agreements.”
+
+This is not a generic document chatbot.
+
+This is a structured, auditable, reproducible policy-research system that must:
+
+1. discover new CRM agreements from official sources;
+2. ingest uploaded or downloaded documents;
+3. extract and preserve text with page-level provenance;
+4. classify candidate documents;
+5. determine whether they meet project inclusion criteria;
+6. segment agreements into legally and analytically meaningful provisions;
+7. classify provisions according to a detailed CRM agreement codebook;
+8. generate document-level and provision-level indicators;
+9. provide evidence for every AI-generated code;
+10. calculate confidence and uncertainty;
+11. run independent verification and contradiction checks;
+12. route ambiguous cases to human reviewers;
+13. record reviewer decisions and adjudication;
+14. maintain version history and an audit trail;
+15. generate tables, visualisations and research-ready datasets;
+16. allow comparison across agreements, countries, years and agreement types;
+17. support semantic question answering with citations;
+18. monitor implementation documents and follow-up actions;
+19. export validated data for statistical and econometric analysis;
+20. remain modular enough to extend to other international agreements later.
+
+The working name of the platform is:
+
+# CRM Agreement Intelligence System
+
+Use this name throughout the project unless configuration overrides it.
+
+---
+
+# 1. CORE RESEARCH PRINCIPLE
+
+The system must be AI-assisted, not AI-authoritative.
+
+The AI may:
+
+* discover;
+* extract;
+* summarise;
+* classify;
+* propose;
+* compare;
+* flag;
+* score;
+* generate draft interpretations.
+
+The AI must not silently make final legal judgments.
+
+Final validated decisions must be distinguishable from:
+
+* raw model outputs;
+* model confidence;
+* rule-based checks;
+* reviewer decisions;
+* adjudicated decisions.
+
+The system must make this distinction explicit in both the database and the user interface.
+
+Never present AI-generated legal coding as verified fact unless a human reviewer has approved it or the configured validation policy allows auto-acceptance for low-risk variables.
+
+---
+
+# 2. AUTHORITATIVE PROJECT INPUTS
+
+The system must be designed around the coding framework in the OECD draft report on international agreements concerning critical raw materials.
+
+The report’s methodology includes:
+
+* agreement metadata;
+* party participation;
+* agreement type;
+* producer-consumer classifications;
+* bindingness;
+* enforceability;
+* dispute settlement;
+* compliance;
+* implementation and monitoring;
+* investment;
+* ESG;
+* trade issues;
+* technology transfer;
+* research;
+* training;
+* economic security;
+* non-market practices;
+* energy transition;
+* strategic industries;
+* cumulative comprehensiveness scores.
+
+The detailed coding definitions must be stored as a configurable machine-readable ontology rather than buried in Python code.
+
+Create a versioned codebook under:
+
+```text
+config/codebooks/crm_codebook_v1.yaml
+```
+
+Also support:
+
+```text
+config/codebooks/crm_codebook_v2.yaml
+config/codebooks/active_codebook.yaml
+```
+
+Do not hard-code the research ontology into the application logic.
+
+---
+
+# 3. REQUIRED TECHNOLOGY STACK
+
+Use a Python-first architecture.
+
+## Backend
+
+* Python 3.12+
+* FastAPI
+* Pydantic v2
+* SQLAlchemy 2.x
+* Alembic
+* PostgreSQL
+* pgvector
+* Redis
+* Celery or Dramatiq for asynchronous jobs
+* APScheduler or Celery Beat for recurring monitoring tasks
+
+## Frontend
+
+Use Streamlit for the first complete implementation.
+
+The Streamlit application must call backend services through clean service interfaces or API clients. Do not bury all application logic inside Streamlit pages.
+
+## Document processing
+
+Use a layered extraction strategy:
+
+* PyMuPDF
+* pypdf
+* python-docx
+* BeautifulSoup
+* trafilatura
+* optional OCR fallback
+* optional table extraction
+* language detection
+* document layout preservation
+
+OCR must only be used when ordinary extraction fails or the document is scanned.
+
+## LLM integration
+
+Implement a provider-agnostic interface supporting:
+
+* OpenAI-compatible APIs;
+* configurable model names;
+* structured JSON outputs;
+* retries;
+* rate limiting;
+* caching;
+* token accounting;
+* cost estimation;
+* deterministic temperature defaults for coding tasks;
+* prompt versioning.
+
+Use Pydantic models for all structured LLM outputs.
+
+## Testing
+
+* pytest
+* pytest-asyncio
+* hypothesis where useful
+* testcontainers for PostgreSQL integration tests if practical
+* snapshot tests for prompts and structured outputs
+* mocked LLM responses for CI
+
+## Packaging and quality
+
+* uv or Poetry
+* Ruff
+* Black
+* mypy
+* pre-commit
+* Docker
+* docker-compose
+* GitHub Actions
+
+---
+
+# 4. NON-NEGOTIABLE DESIGN REQUIREMENTS
+
+The system must be:
+
+* modular;
+* traceable;
+* reproducible;
+* reviewable;
+* configurable;
+* secure;
+* testable;
+* version-controlled;
+* suitable for institutional research use.
+
+Every AI classification must include:
+
+* codebook variable;
+* proposed value;
+* confidence;
+* exact supporting quotation;
+* page number;
+* section or article where available;
+* source document identifier;
+* reasoning summary;
+* model identifier;
+* prompt version;
+* timestamp;
+* verification status;
+* reviewer status.
+
+No classification may exist without evidence, except explicit negative findings. Negative findings must record the search scope and method used.
+
+---
+
+# 5. REPOSITORY STRUCTURE
+
+Create the repository with this structure:
+
+```text
+crm-agreement-intelligence/
+│
+├── README.md
+├── pyproject.toml
+├── uv.lock
+├── .env.example
+├── .gitignore
+├── docker-compose.yml
+├── Dockerfile
+├── Makefile
+├── alembic.ini
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   │
+│   ├── api/
+│   │   ├── dependencies.py
+│   │   ├── routes/
+│   │   │   ├── agreements.py
+│   │   │   ├── documents.py
+│   │   │   ├── discovery.py
+│   │   │   ├── coding.py
+│   │   │   ├── review.py
+│   │   │   ├── analytics.py
+│   │   │   ├── search.py
+│   │   │   ├── exports.py
+│   │   │   └── system.py
+│   │
+│   ├── core/
+│   │   ├── config.py
+│   │   ├── logging.py
+│   │   ├── security.py
+│   │   ├── exceptions.py
+│   │   └── constants.py
+│   │
+│   ├── db/
+│   │   ├── base.py
+│   │   ├── session.py
+│   │   ├── models/
+│   │   ├── repositories/
+│   │   └── migrations/
+│   │
+│   ├── schemas/
+│   │   ├── agreements.py
+│   │   ├── documents.py
+│   │   ├── provisions.py
+│   │   ├── coding.py
+│   │   ├── review.py
+│   │   ├── analytics.py
+│   │   └── llm.py
+│   │
+│   ├── services/
+│   │   ├── discovery/
+│   │   ├── ingestion/
+│   │   ├── parsing/
+│   │   ├── segmentation/
+│   │   ├── classification/
+│   │   ├── verification/
+│   │   ├── adjudication/
+│   │   ├── analytics/
+│   │   ├── reporting/
+│   │   ├── implementation_tracking/
+│   │   └── exports/
+│   │
+│   ├── agents/
+│   │   ├── discovery_agent.py
+│   │   ├── eligibility_agent.py
+│   │   ├── legal_design_agent.py
+│   │   ├── thematic_coding_agent.py
+│   │   ├── verification_agent.py
+│   │   ├── novelty_agent.py
+│   │   ├── implementation_agent.py
+│   │   └── report_agent.py
+│   │
+│   ├── llm/
+│   │   ├── base.py
+│   │   ├── providers/
+│   │   ├── prompts/
+│   │   ├── structured_outputs.py
+│   │   ├── cache.py
+│   │   └── telemetry.py
+│   │
+│   ├── tasks/
+│   │   ├── discovery_tasks.py
+│   │   ├── ingestion_tasks.py
+│   │   ├── coding_tasks.py
+│   │   ├── verification_tasks.py
+│   │   └── scheduled_tasks.py
+│   │
+│   └── utils/
+│
+├── streamlit_app/
+│   ├── Home.py
+│   ├── pages/
+│   │   ├── 01_Dashboard.py
+│   │   ├── 02_Agreement_Explorer.py
+│   │   ├── 03_New_Document_Ingestion.py
+│   │   ├── 04_Discovery_Queue.py
+│   │   ├── 05_Coding_Review.py
+│   │   ├── 06_Adjudication.py
+│   │   ├── 07_Comparison_Tool.py
+│   │   ├── 08_Network_Analysis.py
+│   │   ├── 09_Implementation_Tracker.py
+│   │   ├── 10_Ask_the_Database.py
+│   │   ├── 11_Reports_and_Exports.py
+│   │   └── 12_Admin_and_Codebook.py
+│   └── components/
+│
+├── config/
+│   ├── codebooks/
+│   │   ├── crm_codebook_v1.yaml
+│   │   └── active_codebook.yaml
+│   ├── sources/
+│   │   ├── official_sources.yaml
+│   │   └── search_queries.yaml
+│   ├── models/
+│   │   └── model_registry.yaml
+│   ├── thresholds/
+│   │   └── review_thresholds.yaml
+│   └── prompts/
+│
+├── data/
+│   ├── raw/
+│   ├── processed/
+│   ├── exports/
+│   └── fixtures/
+│
+├── scripts/
+│   ├── bootstrap_db.py
+│   ├── seed_codebook.py
+│   ├── ingest_folder.py
+│   ├── run_discovery.py
+│   ├── reprocess_document.py
+│   ├── evaluate_models.py
+│   └── export_research_dataset.py
+│
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   ├── regression/
+│   ├── fixtures/
+│   └── golden_set/
+│
+└── docs/
+    ├── architecture.md
+    ├── data_model.md
+    ├── coding_methodology.md
+    ├── human_review_protocol.md
+    ├── deployment.md
+    ├── security.md
+    └── model_evaluation.md
+```
+
+---
+
+# 6. DOMAIN DATA MODEL
+
+Design a robust relational schema.
+
+At minimum, include the following entities.
+
+## Agreement
+
+Fields:
+
+* id;
+* canonical_title;
+* short_title;
+* agreement_family;
+* agreement_type;
+* legal_status;
+* bindingness_status;
+* enforceability_level;
+* signature_date;
+* entry_into_force_date;
+* termination_date;
+* status;
+* scope;
+* summary;
+* source_language;
+* countries;
+* organisations;
+* producer_consumer_pair;
+* crm_specific;
+* inclusion_status;
+* inclusion_reason;
+* validation_status;
+* codebook_version;
+* created_at;
+* updated_at.
+
+## Party
+
+Fields:
+
+* id;
+* canonical_name;
+* ISO code where applicable;
+* party_type;
+* region;
+* G7 indicator;
+* Global South indicator;
+* producer-consumer classification;
+* classification period;
+* source;
+* notes.
+
+Use a many-to-many AgreementParty table.
+
+## Document
+
+Fields:
+
+* id;
+* agreement_id;
+* title;
+* document_type;
+* version;
+* language;
+* source_url;
+* retrieval_date;
+* publication_date;
+* signature_date;
+* file_path;
+* MIME type;
+* SHA-256 hash;
+* extracted_text;
+* extraction_method;
+* OCR used;
+* page count;
+* parser version;
+* is_official_source;
+* authenticity_status;
+* supersedes_document_id;
+* processing_status.
+
+## DocumentPage
+
+Fields:
+
+* document_id;
+* page_number;
+* extracted_text;
+* image_path if generated;
+* extraction_confidence;
+* bounding-box metadata where available.
+
+## Provision
+
+Fields:
+
+* id;
+* document_id;
+* agreement_id;
+* page_start;
+* page_end;
+* article_number;
+* section_title;
+* paragraph_number;
+* provision_text;
+* parent_provision_id;
+* provision_type;
+* embedding;
+* text_hash;
+* segmentation_version.
+
+## CodebookVariable
+
+Fields:
+
+* id;
+* code;
+* family;
+* label;
+* description;
+* data_type;
+* allowed_values;
+* inclusion_criteria;
+* exclusion_criteria;
+* dependencies;
+* positive_examples;
+* negative_examples;
+* risk_level;
+* mandatory_human_review;
+* codebook_version.
+
+## CodingDecision
+
+Fields:
+
+* id;
+* agreement_id;
+* document_id;
+* provision_id nullable;
+* variable_id;
+* proposed_value;
+* final_value;
+* AI confidence;
+* AI rationale;
+* evidence_quote;
+* evidence_page;
+* evidence_article;
+* evidence_char_start;
+* evidence_char_end;
+* evidence_strength;
+* negative_search_scope;
+* model_name;
+* model_provider;
+* prompt_version;
+* codebook_version;
+* first_pass_status;
+* verification_status;
+* reviewer_status;
+* adjudication_status;
+* created_at;
+* updated_at.
+
+## VerificationResult
+
+Fields:
+
+* coding_decision_id;
+* verifier_model;
+* verifier_prompt_version;
+* support_status;
+* contradiction_status;
+* verified_value;
+* confidence;
+* critique;
+* missing_evidence;
+* created_at.
+
+## ReviewDecision
+
+Fields:
+
+* coding_decision_id;
+* reviewer_id;
+* reviewer_role;
+* decision;
+* revised_value;
+* comment;
+* timestamp.
+
+## AdjudicationDecision
+
+Fields:
+
+* coding_decision_id;
+* adjudicator_id;
+* final_value;
+* rationale;
+* timestamp.
+
+## DiscoveryCandidate
+
+Fields:
+
+* title;
+* source_url;
+* source_domain;
+* discovered_at;
+* search_query;
+* country hints;
+* candidate_type;
+* relevance_score;
+* official_source_score;
+* duplicate_score;
+* document_availability;
+* screening_status;
+* reviewer_status.
+
+## ImplementationEvent
+
+Fields:
+
+* agreement_id;
+* related_document_id;
+* commitment_id;
+* event_type;
+* event_date;
+* responsible_actor;
+* evidence_source;
+* description;
+* implementation_status;
+* confidence;
+* human_validated.
+
+## Commitment
+
+Fields:
+
+* agreement_id;
+* provision_id;
+* obligation_text;
+* responsible_actor;
+* deadline;
+* financing amount;
+* financing currency;
+* implementation mechanism;
+* monitoring mechanism;
+* output indicator;
+* outcome indicator;
+* status.
+
+## AuditLog
+
+Track:
+
+* user;
+* action;
+* object type;
+* object id;
+* old value;
+* new value;
+* timestamp;
+* IP or session metadata where appropriate.
+
+---
+
+# 7. CODEBOOK IMPLEMENTATION
+
+Convert the paper’s coding framework into YAML.
+
+Each variable must use a schema similar to:
+
+```yaml
+code: inv_spec_def
+family: investment
+label: Extensively defined CRM-related investment provision
+description: >
+  Indicates whether CRM-related investment is defined in substantial,
+  operational or instrument-specific detail.
+data_type: binary
+allowed_values: [0, 1]
+risk_level: medium
+mandatory_human_review: false
+
+dependencies:
+  requires:
+    inv_gen_ref: 1
+    inv_crm: 1
+    inv_basic_def: 1
+
+positive_criteria:
+  - names a financing mechanism
+  - names an institution
+  - identifies a specific programme
+  - specifies a quantified amount
+  - identifies concrete project-selection or implementation procedures
+
+negative_criteria:
+  - general promotion of investment
+  - aspirational reference without mechanism
+  - generic reference to private-sector participation
+  - no CRM linkage
+
+positive_examples:
+  - text: "Participants intend to mobilise grants, guarantees, loans, or equity."
+    explanation: "Specific financing instruments are listed."
+
+negative_examples:
+  - text: "The parties will encourage investment in critical minerals."
+    explanation: "General intent without operational detail."
+
+evidence_requirements:
+  quotation_required: true
+  location_required: true
+  minimum_evidence_strength: 0.75
+```
+
+Implement all variables listed in the methodological annex, including:
+
+## Legal and institutional design
+
+* enforceability_levels;
+* DSM_type;
+* DSM_seq;
+* compliance_measures;
+* compliance_seq.
+
+## Implementation and monitoring
+
+* actplans_rdmps;
+* mech_work_group;
+* mech_committee;
+* mech_dialogue;
+* mech_stakeholder;
+* monitor_activities;
+* monitor_activities_progress.
+
+## Investment
+
+* inv_gen_ref;
+* inv_crm;
+* inv_basic_def;
+* inv_spec_def;
+* com_gen_ref;
+* com_crm;
+* com_pub;
+* com_priv;
+* com_spec_fund;
+* fac_gen_ref;
+* fac_crm;
+* fac_pub;
+* fac_priv;
+* screen_gen_ref;
+* screen_crm.
+
+## ESG
+
+* esg_gen_ref;
+* esg_crm;
+* esg_basic_def;
+* esg_spec_def;
+* lab_gen_ref;
+* lab_crm;
+* lab_rights;
+* lab_health_com;
+* soclab_local;
+* soclab_indig;
+* tran_gen_ref;
+* tran_crm;
+* tran_due_diligence;
+* tran_anticor;
+* env_gen_ref;
+* env_crm;
+* env_pollution;
+* env_degradation.
+
+## Trade
+
+* ti_gen_ref;
+* ti_crm;
+* ti_basic_def;
+* ti_spec_def;
+* exp_quota_gen_ref;
+* exp_quota_crm;
+* exp_tax_gen_ref;
+* exp_tax_crm;
+* exp_lic_gen_ref;
+* exp_lic_crm;
+* imp_res_gen_ref;
+* imp_res_crm;
+* price_gen_ref;
+* price_crm;
+* price_max;
+* price_min;
+* other_gen_ref;
+* other_crm.
+
+## TTRT
+
+* ttrt_gen_ref;
+* ttrt_crm;
+* ttrt_basic_def;
+* ttrt_spec_def;
+* res_gen_ref;
+* res_crm;
+* res_sup_spec;
+* tech_gen_ref;
+* tech_crm;
+* tech_sup_spec;
+* train_gen_ref;
+* train_crm;
+* train_high_low;
+* train_sup_spec.
+
+## Economic security
+
+* nonmarket_practices;
+* state_sup;
+* dist_price;
+* monopoly.
+
+## Energy transition and security
+
+* sec_energy;
+* decarbonisation;
+* circularity;
+* efficiency.
+
+## Strategic industries
+
+* ener_trans_ind;
+* tech_man_ind;
+* trans_auto_ind.
+
+---
+
+# 8. LOGICAL VALIDATION RULES
+
+Build a generic rule engine.
+
+Examples:
+
+```text
+inv_spec_def = 1
+requires:
+inv_basic_def = 1
+inv_crm = 1
+inv_gen_ref = 1
+```
+
+```text
+price_min = 1
+requires:
+price_crm = 1
+price_gen_ref = 1
+ti_gen_ref = 1
+```
+
+```text
+train_sup_spec = 1
+requires:
+train_crm = 1
+train_gen_ref = 1
+```
+
+```text
+monitor_activities_progress = 1
+requires:
+monitor_activities = 1
+```
+
+```text
+DSM_seq = 1
+requires:
+DSM_type in [2, 3, 4] or evidence of multiple staged mechanisms
+```
+
+Rules must be declared in YAML and evaluated generically.
+
+Rule violations must:
+
+* block auto-acceptance;
+* create a validation issue;
+* appear in the review queue;
+* be visible in the interface.
+
+---
+
+# 9. PIPELINE ORCHESTRATION
+
+Implement a state-machine workflow.
+
+Suggested states:
+
+```text
+DISCOVERED
+SCREENING_PENDING
+SCREENED_IN
+SCREENED_OUT
+DOWNLOAD_PENDING
+DOWNLOADED
+PARSING
+PARSED
+SEGMENTING
+SEGMENTED
+CODING_PENDING
+CODING_FIRST_PASS
+VERIFYING
+REVIEW_PENDING
+HUMAN_REVIEWED
+ADJUDICATION_PENDING
+VALIDATED
+PUBLISHED
+FAILED
+```
+
+Every job must be:
+
+* idempotent;
+* restartable;
+* logged;
+* retryable;
+* traceable;
+* resumable after failure.
+
+Do not allow duplicate processing merely because a task retries.
+
+---
+
+# 10. AGENT 1: DISCOVERY AGENT
+
+Build a recurring discovery service.
+
+## Purpose
+
+Find newly announced, signed, negotiated, published, amended or implemented CRM agreements.
+
+## Search sources
+
+Configure official sources in YAML.
+
+Include support for:
+
+* government ministry pages;
+* foreign affairs ministries;
+* trade ministries;
+* mining ministries;
+* official treaty repositories;
+* EUR-Lex;
+* European Commission;
+* USTR;
+* US Department of State;
+* UK government;
+* Canadian government;
+* Australian government;
+* Japanese ministries;
+* WTO;
+* OECD;
+* IEA;
+* official gazettes;
+* RSS feeds;
+* sitemap monitoring;
+* targeted web search APIs where available.
+
+## Search queries
+
+Use configurable multilingual search patterns.
+
+Examples:
+
+```text
+"critical minerals" agreement
+"critical raw materials" memorandum
+"strategic minerals" partnership
+"mineral supply chain" memorandum of understanding
+"rare earths" bilateral agreement
+"battery value chain" agreement
+"mining and processing" critical minerals framework
+"critical minerals" joint statement
+"raw materials value chain" partnership
+```
+
+## Discovery output
+
+Return structured candidate records:
+
+```json
+{
+  "title": "",
+  "url": "",
+  "source_domain": "",
+  "source_type": "",
+  "publication_date": "",
+  "candidate_document_type": "",
+  "parties_detected": [],
+  "crm_terms_detected": [],
+  "signed_status": "unknown",
+  "full_text_available": false,
+  "official_source_probability": 0.0,
+  "relevance_probability": 0.0,
+  "duplicate_probability": 0.0,
+  "notes": ""
+}
+```
+
+## Important rule
+
+Press releases are candidates, not automatically agreements.
+
+The discovery service must distinguish:
+
+* actual agreement text;
+* announcement;
+* summary;
+* press release;
+* roadmap;
+* action plan;
+* ministerial communiqué;
+* negotiation mandate;
+* ratification notice;
+* amended text;
+* duplicate publication.
+
+Discovery must create a queue for human screening.
+
+---
+
+# 11. AGENT 2: INGESTION AND AUTHENTICITY AGENT
+
+Accept:
+
+* PDF;
+* DOCX;
+* HTML;
+* TXT;
+* image-based PDF;
+* URL;
+* watched-folder input.
+
+## Required steps
+
+1. save immutable original file;
+2. calculate SHA-256;
+3. capture source URL;
+4. capture retrieval timestamp;
+5. preserve HTTP headers where practical;
+6. identify MIME type;
+7. detect duplicates;
+8. detect near-duplicate versions;
+9. extract metadata;
+10. run text extraction;
+11. run OCR only when required;
+12. preserve page boundaries;
+13. generate page images where helpful;
+14. identify document language;
+15. store original and translated text separately;
+16. assign processing quality indicators.
+
+## Authenticity scoring
+
+Assign:
+
+* official source;
+* mirror;
+* secondary source;
+* unknown source.
+
+Never replace the original document with a translated or cleaned version.
+
+---
+
+# 12. AGENT 3: ELIGIBILITY AGENT
+
+Determine whether the document belongs in the CRM agreement inventory.
+
+## Inclusion criteria
+
+Assess:
+
+* state-to-state or government-level character;
+* signed or eligible to be formally signed;
+* public availability of full text;
+* CRM-specific focus;
+* dedicated CRM section or chapter;
+* relevant time period;
+* not solely private-sector;
+* not merely a press release;
+* not merely an unsourced summary.
+
+## Output
+
+```json
+{
+  "eligible": true,
+  "confidence": 0.87,
+  "recommended_agreement_type": "MoU",
+  "recommended_legal_status": "non_binding",
+  "crm_specific": true,
+  "full_text_available": true,
+  "state_to_state": true,
+  "signature_status": "signed",
+  "inclusion_reasons": [],
+  "exclusion_reasons": [],
+  "ambiguities": [],
+  "human_review_required": true
+}
+```
+
+All legal-status outputs must be treated as recommendations until validated.
+
+---
+
+# 13. AGENT 4: DOCUMENT SEGMENTATION AGENT
+
+Segment documents into:
+
+* title;
+* preamble;
+* recitals;
+* definitions;
+* articles;
+* sections;
+* paragraphs;
+* annexes;
+* schedules;
+* footnotes;
+* signature blocks.
+
+Use deterministic parsing first.
+
+Use the LLM only to repair or improve unclear segmentation.
+
+Every provision must preserve:
+
+* page number;
+* article;
+* section;
+* paragraph;
+* source text;
+* character offsets;
+* hierarchy;
+* parent-child relationship.
+
+Do not use arbitrary fixed-size chunks as the primary legal unit.
+
+Fixed-size chunks may be generated additionally for embedding search, but they must not replace legal provisions.
+
+---
+
+# 14. AGENT 5: LEGAL DESIGN AGENT
+
+Analyse:
+
+* legally binding versus non-binding;
+* intention to be legally bound;
+* mandatory versus best-efforts language;
+* entry-into-force clauses;
+* ratification;
+* amendment;
+* termination;
+* dispute settlement;
+* compliance;
+* enforcement;
+* private-state mechanisms;
+* state-state mechanisms;
+* consultation procedures;
+* sequencing.
+
+## Critical instruction
+
+Do not infer bindingness solely from “shall,” “must,” or the document title.
+
+Consider:
+
+* explicit disclaimer clauses;
+* governing law;
+* ratification;
+* entry into force;
+* whole-document structure;
+* remedies;
+* dispute settlement;
+* signatures;
+* institutional context.
+
+Return:
+
+* recommended classification;
+* confidence;
+* evidence for;
+* evidence against;
+* unresolved ambiguity;
+* mandatory review flag.
+
+Legal bindingness must always require human validation in version 1.
+
+---
+
+# 15. AGENT 6: THEMATIC CODING AGENT
+
+Run classification in families, not one giant prompt.
+
+Separate calls for:
+
+* investment;
+* ESG;
+* trade;
+* TTRT;
+* implementation;
+* economic security;
+* energy transition;
+* industries.
+
+Each call must receive:
+
+* relevant codebook variables;
+* definitions;
+* positive examples;
+* negative examples;
+* logical dependencies;
+* candidate provisions retrieved through hybrid search;
+* surrounding context;
+* document metadata.
+
+## Output model
+
+For every variable:
+
+```json
+{
+  "variable_code": "price_min",
+  "proposed_value": 1,
+  "confidence": 0.93,
+  "evidence": [
+    {
+      "quote": "pricing framework including price floors or similar measures",
+      "page": 8,
+      "article": "Section III",
+      "provision_id": "uuid",
+      "evidence_strength": 0.96
+    }
+  ],
+  "reasoning_summary": "The text explicitly refers to a CRM pricing framework containing price floors.",
+  "counterevidence": [],
+  "ambiguity": null,
+  "human_review_required": false
+}
+```
+
+Do not store hidden chain-of-thought.
+
+Store only concise reasoning summaries suitable for audit.
+
+---
+
+# 16. NEGATIVE CODING PROTOCOL
+
+A value of zero must not mean “the model did not notice anything.”
+
+For negative codes, record:
+
+* provisions searched;
+* semantic queries used;
+* keyword queries used;
+* whether whole-document review occurred;
+* confidence in absence;
+* possible ambiguity.
+
+Example:
+
+```json
+{
+  "variable_code": "com_spec_fund",
+  "proposed_value": 0,
+  "confidence": 0.78,
+  "negative_search_scope": {
+    "whole_document_search": true,
+    "keywords": ["USD", "EUR", "million", "billion", "grant", "loan", "equity"],
+    "semantic_queries": [
+      "quantified financial commitment",
+      "specific funding amount for critical minerals"
+    ],
+    "candidate_passages_reviewed": 12
+  },
+  "reasoning_summary": "Investment is discussed, but no quantified financial commitment was identified."
+}
+```
+
+Low-confidence negative findings must be reviewed.
+
+---
+
+# 17. AGENT 7: VERIFICATION AGENT
+
+Use an independent prompt and preferably a separate model configuration.
+
+The verifier must:
+
+* examine the proposed value;
+* examine supporting evidence;
+* inspect surrounding text;
+* detect unsupported claims;
+* detect missed exceptions;
+* detect CRM linkage errors;
+* detect hierarchy violations;
+* detect aspirational-versus-binding confusion;
+* propose correction.
+
+Output:
+
+```json
+{
+  "supports_first_pass": false,
+  "verified_value": 0,
+  "confidence": 0.81,
+  "critique": "The clause refers to general mineral cooperation, not specifically to critical raw materials.",
+  "missing_evidence": true,
+  "contradiction_detected": false,
+  "human_review_required": true
+}
+```
+
+---
+
+# 18. HUMAN-AI ADJUDICATION POLICY
+
+Create configurable thresholds.
+
+Example:
+
+```yaml
+auto_accept:
+  allowed_risk_levels: [low]
+  minimum_first_pass_confidence: 0.92
+  minimum_verifier_confidence: 0.90
+  verifier_must_agree: true
+  no_rule_violations: true
+  evidence_required: true
+
+mandatory_human_review:
+  variables:
+    - enforceability_levels
+    - DSM_type
+    - compliance_measures
+    - inv_spec_def
+    - esg_spec_def
+    - ti_spec_def
+    - ttrt_spec_def
+  conditions:
+    - confidence_below: 0.85
+    - first_pass_verifier_disagreement: true
+    - rule_violation: true
+    - novel_provision: true
+    - unofficial_source: true
+    - OCR_quality_below: 0.80
+```
+
+## Review interface
+
+The reviewer must see:
+
+* source text;
+* proposed code;
+* definition;
+* evidence;
+* surrounding context;
+* first-pass rationale;
+* verifier critique;
+* logical dependencies;
+* similar validated examples;
+* model confidence;
+* buttons for approve, reject, revise and uncertain.
+
+## Adjudication
+
+Where two reviewers disagree:
+
+* create an adjudication task;
+* preserve both decisions;
+* allow senior adjudicator to set final value;
+* preserve rationale.
+
+Never overwrite prior decisions.
+
+---
+
+# 19. COMPREHENSIVENESS INDICATORS
+
+Implement the original 0–4 cumulative indicator.
+
+Example:
+
+```text
+0 = no mention
+1 = general mention
+2 = CRM-specific mention
+3 = minimally defined
+4 = extensively defined
+```
+
+Enforce cumulative consistency.
+
+Also implement a richer multidimensional score.
+
+## Recommended dimensions
+
+* presence;
+* CRM specificity;
+* obligation strength;
+* precision;
+* responsible actor;
+* implementation mechanism;
+* timeline;
+* monitoring;
+* enforcement.
+
+Do not collapse these dimensions automatically into one “effectiveness” score.
+
+If a composite score is offered, clearly label it as an analytical construct and provide sensitivity settings.
+
+---
+
+# 20. OBLIGATION-STRENGTH ANALYSIS
+
+Detect and classify legal modalities:
+
+* shall;
+* shall not;
+* must;
+* undertake;
+* commit;
+* will;
+* intend;
+* endeavour;
+* seek;
+* encourage;
+* may;
+* recognise.
+
+Create provision-level fields:
+
+* modality;
+* obligation category;
+* actor specified;
+* action specified;
+* deadline specified;
+* measurable output specified;
+* monitoring specified;
+* consequence specified.
+
+Example categories:
+
+```text
+0 = descriptive
+1 = aspirational
+2 = best endeavours
+3 = political commitment
+4 = mandatory obligation
+```
+
+Do not treat this as a final legal judgment without review.
+
+---
+
+# 21. SEMANTIC SEARCH AND RETRIEVAL
+
+Use pgvector.
+
+Store embeddings for:
+
+* provisions;
+* agreement summaries;
+* codebook definitions;
+* validated examples;
+* implementation events.
+
+Implement hybrid retrieval:
+
+* full-text search;
+* keyword search;
+* semantic similarity;
+* metadata filtering.
+
+Questions must return:
+
+* answer;
+* evidence quotations;
+* agreement title;
+* page;
+* article;
+* validation status.
+
+The assistant must distinguish:
+
+* validated findings;
+* provisional AI findings;
+* unreviewed candidates.
+
+---
+
+# 22. NOVELTY AND TEMPLATE ANALYSIS
+
+Implement provision-level similarity analysis.
+
+Use embeddings and lexical similarity.
+
+Required outputs:
+
+* nearest existing provision;
+* cosine similarity;
+* agreement family;
+* likely template source;
+* novelty score;
+* reused language percentage;
+* unique clauses.
+
+Suggested formula:
+
+```text
+Novelty = 1 - maximum similarity to prior validated provisions
+```
+
+Support:
+
+* EU template comparison;
+* US template comparison;
+* agreement-family clustering;
+* policy diffusion;
+* temporal emergence;
+* country-specific deviations.
+
+Do not claim legal derivation from similarity alone.
+
+Use cautious language such as:
+
+* “high textual similarity”;
+* “possible template reuse”;
+* “likely common drafting pattern.”
+
+---
+
+# 23. NETWORK ANALYSIS
+
+Build networks where:
+
+## Country-agreement network
+
+* nodes: parties;
+* edges: agreements;
+* edge attributes: year, agreement type, bindingness, themes.
+
+## Agreement-similarity network
+
+* nodes: agreements;
+* edges: similarity above threshold.
+
+## Provision-diffusion network
+
+* nodes: agreements or provision types;
+* edges: likely textual diffusion.
+
+Calculate:
+
+* degree centrality;
+* weighted degree;
+* betweenness;
+* community detection;
+* temporal evolution.
+
+Visualise using Plotly or PyVis.
+
+---
+
+# 24. IMPLEMENTATION TRACKING AGENT
+
+Monitor follow-up evidence after signing.
+
+Search for:
+
+* roadmaps;
+* action plans;
+* committee meetings;
+* progress reports;
+* investment announcements;
+* project financing;
+* feasibility studies;
+* tenders;
+* training programmes;
+* research partnerships;
+* amendments;
+* ratification;
+* entry into force;
+* suspension;
+* termination.
+
+Link each implementation event to:
+
+* agreement;
+* commitment;
+* responsible actor;
+* date;
+* source;
+* evidence;
+* status.
+
+Use statuses:
+
+```text
+NOT_STARTED
+ANNOUNCED
+IN_PROGRESS
+PARTIALLY_IMPLEMENTED
+IMPLEMENTED
+DELAYED
+SUSPENDED
+TERMINATED
+UNVERIFIED
+```
+
+The AI may propose a status, but medium- and high-risk updates require human review.
+
+---
+
+# 25. STREAMLIT APPLICATION REQUIREMENTS
+
+## Page 1: Dashboard
+
+Show:
+
+* number of agreements;
+* number validated;
+* number pending review;
+* number of new discovery candidates;
+* agreements by year;
+* agreement type;
+* countries;
+* bindingness;
+* thematic depth;
+* implementation status;
+* recent changes;
+* model cost and job status for administrators.
+
+## Page 2: Agreement Explorer
+
+Provide filters:
+
+* country;
+* year;
+* agreement type;
+* legal status;
+* producer-consumer pair;
+* theme;
+* validation status;
+* implementation status.
+
+Show:
+
+* metadata;
+* summary;
+* source documents;
+* PDF viewer or page preview;
+* coding profile;
+* evidence;
+* citations;
+* version history;
+* audit trail.
+
+## Page 3: New Document Ingestion
+
+Allow:
+
+* file upload;
+* URL submission;
+* watched-folder scan;
+* metadata preview;
+* duplicate warning;
+* processing launch.
+
+## Page 4: Discovery Queue
+
+Show:
+
+* candidate title;
+* source;
+* relevance;
+* official-source score;
+* likely type;
+* duplication score;
+* approve for ingestion;
+* reject;
+* defer.
+
+## Page 5: Coding Review
+
+Show side-by-side:
+
+* document text;
+* proposed variable;
+* evidence;
+* codebook definition;
+* confidence;
+* verifier opinion;
+* logical checks;
+* similar examples.
+
+## Page 6: Adjudication
+
+Show disagreements and senior review.
+
+## Page 7: Comparison Tool
+
+Compare agreements across:
+
+* metadata;
+* legal design;
+* themes;
+* depth;
+* obligation strength;
+* implementation;
+* similarity;
+* unique provisions.
+
+## Page 8: Network Analysis
+
+Interactive country and agreement networks.
+
+## Page 9: Implementation Tracker
+
+Timeline and commitment status.
+
+## Page 10: Ask the Database
+
+Natural-language questions with citations.
+
+## Page 11: Reports and Exports
+
+Generate:
+
+* CSV;
+* Excel;
+* JSON;
+* Parquet;
+* codebook;
+* review log;
+* agreement profiles;
+* charts;
+* draft analytical report.
+
+## Page 12: Admin and Codebook
+
+Manage:
+
+* codebook versions;
+* prompts;
+* thresholds;
+* sources;
+* models;
+* costs;
+* reviewers;
+* jobs;
+* audit logs.
+
+---
+
+# 26. REPORT GENERATION
+
+The platform may generate draft narrative text.
+
+Every generated paragraph must include a structured provenance object:
+
+```json
+{
+  "claim": "",
+  "supporting_agreements": [],
+  "supporting_variables": [],
+  "filters": {},
+  "data_snapshot_date": "",
+  "validation_status": ""
+}
+```
+
+Report generation must never cite unreviewed values as validated evidence.
+
+Include options to generate:
+
+* updated executive summary;
+* descriptive statistics;
+* country profiles;
+* thematic comparisons;
+* legal-design comparison;
+* implementation summary;
+* methodological appendix;
+* data-quality appendix.
+
+---
+
+# 27. ANALYTICS
+
+Reproduce and improve the paper’s descriptive analysis.
+
+Required outputs:
+
+* agreements by year;
+* agreements by type;
+* country participation;
+* G7 participation;
+* Global South participation;
+* producer-consumer pairing;
+* binding versus non-binding;
+* procedural formality;
+* implementation breadth;
+* economic-security themes;
+* energy-transition themes;
+* investment inclusion;
+* ESG inclusion;
+* trade inclusion;
+* TTRT inclusion;
+* comprehensiveness by country;
+* comprehensiveness by agreement type;
+* trends over time.
+
+All charts must:
+
+* use validated data by default;
+* allow inclusion of provisional data through an explicit toggle;
+* display sample size;
+* show data snapshot date;
+* expose underlying records.
+
+---
+
+# 28. MODEL EVALUATION
+
+Create a golden dataset.
+
+The system must support:
+
+* two or more human coders;
+* coder disagreement;
+* final adjudicated gold labels;
+* train/dev/test separation;
+* evaluation by variable family.
+
+Calculate:
+
+* accuracy;
+* precision;
+* recall;
+* F1;
+* Cohen’s kappa;
+* weighted kappa;
+* Krippendorff’s alpha;
+* confusion matrices;
+* calibration error;
+* coverage at confidence threshold.
+
+Do not report one global score only.
+
+Produce performance by:
+
+* variable;
+* code family;
+* agreement type;
+* document language;
+* scanned versus digital PDF;
+* binding versus non-binding;
+* short versus long document.
+
+Build a CLI:
+
+```bash
+python scripts/evaluate_models.py \
+  --golden-set tests/golden_set \
+  --model coding_model_v1 \
+  --codebook crm_codebook_v1
+```
+
+---
+
+# 29. PROMPT VERSIONING
+
+Every prompt must be stored as a versioned file.
+
+Example:
+
+```text
+app/llm/prompts/eligibility/v1.md
+app/llm/prompts/legal_design/v1.md
+app/llm/prompts/investment/v1.md
+app/llm/prompts/esg/v1.md
+app/llm/prompts/trade/v1.md
+app/llm/prompts/ttrt/v1.md
+app/llm/prompts/verification/v1.md
+```
+
+Every coding decision must store the exact prompt version.
+
+Prompt changes must not silently alter prior records.
+
+---
+
+# 30. SECURITY AND DATA GOVERNANCE
+
+Implement:
+
+* role-based access;
+* reviewer roles;
+* administrator roles;
+* session security;
+* secret management;
+* file-size limits;
+* MIME validation;
+* malware-scan hook;
+* safe filename handling;
+* path traversal prevention;
+* rate limiting;
+* API authentication;
+* audit logs;
+* configurable data retention.
+
+Documents marked restricted must not be sent to external LLM providers unless explicitly permitted.
+
+Create a provider policy layer:
+
+```yaml
+data_classification:
+  public:
+    allowed_providers: ["external", "local"]
+  internal:
+    allowed_providers: ["approved_external", "local"]
+  restricted:
+    allowed_providers: ["local"]
+```
+
+---
+
+# 31. OBSERVABILITY
+
+Implement structured logs.
+
+Track:
+
+* job id;
+* document id;
+* agreement id;
+* stage;
+* model;
+* tokens;
+* latency;
+* cost;
+* retries;
+* errors;
+* reviewer actions.
+
+Provide an admin panel for:
+
+* failed jobs;
+* queue depth;
+* model costs;
+* slow tasks;
+* parsing quality;
+* pending reviews.
+
+---
+
+# 32. TESTING REQUIREMENTS
+
+Write tests before considering a module complete.
+
+## Unit tests
+
+Cover:
+
+* codebook parsing;
+* rule engine;
+* score calculation;
+* state transitions;
+* duplicate detection;
+* document metadata extraction;
+* confidence thresholding;
+* review policy;
+* export logic.
+
+## Integration tests
+
+Cover:
+
+* upload to parsed document;
+* parsed document to provisions;
+* provisions to coding;
+* coding to verification;
+* verification to review queue;
+* reviewer approval to validated record;
+* export of validated dataset.
+
+## Regression tests
+
+Create fixture agreements with known results.
+
+Ensure prompt or model updates do not unexpectedly alter validated behaviour.
+
+## Failure tests
+
+Test:
+
+* corrupted PDF;
+* scanned PDF;
+* empty document;
+* unsupported language;
+* duplicate file;
+* unofficial source;
+* conflicting dates;
+* missing page numbers;
+* malformed LLM JSON;
+* provider timeout;
+* low-confidence classification;
+* contradiction between passes.
+
+---
+
+# 33. SEED DATA AND DEMO
+
+Create a demo dataset with at least five fictional or safely reusable agreement examples.
+
+Do not reproduce copyrighted full agreements in the repository.
+
+Include synthetic texts that demonstrate:
+
+* non-binding MoU;
+* binding agreement;
+* price floor;
+* environmental provision;
+* training programme;
+* working group;
+* no quantified financing;
+* dispute settlement.
+
+Create seed scripts to populate the demo.
+
+---
+
+# 34. COMMAND-LINE INTERFACES
+
+Implement:
+
+```bash
+make setup
+make dev
+make test
+make lint
+make format
+make migrate
+make seed
+make worker
+make scheduler
+make streamlit
+```
+
+Also implement:
+
+```bash
+python scripts/ingest_folder.py data/raw/incoming
+python scripts/run_discovery.py
+python scripts/reprocess_document.py --document-id UUID
+python scripts/export_research_dataset.py --validated-only
+python scripts/evaluate_models.py
+```
+
+---
+
+# 35. DEPLOYMENT
+
+Provide Docker Compose services:
+
+* api;
+* streamlit;
+* postgres;
+* redis;
+* worker;
+* scheduler.
+
+The project must start with:
+
+```bash
+docker compose up --build
+```
+
+Include health checks.
+
+Provide local development instructions.
+
+---
+
+# 36. DEVELOPMENT PHASES
+
+Do not attempt everything in one uncontrolled pass.
+
+Implement in phases.
+
+## Phase 1: Foundation
+
+Deliver:
+
+* repository structure;
+* configuration;
+* database;
+* migrations;
+* codebook loader;
+* document upload;
+* basic PDF extraction;
+* agreement and document pages;
+* basic tests.
+
+## Phase 2: Coding pipeline
+
+Deliver:
+
+* provision segmentation;
+* LLM provider abstraction;
+* investment coding;
+* evidence storage;
+* rule engine;
+* review queue;
+* first-pass tests.
+
+## Phase 3: Full ontology
+
+Deliver all thematic families and legal design.
+
+## Phase 4: Verification and adjudication
+
+Deliver:
+
+* second-pass verification;
+* confidence thresholds;
+* reviewer decisions;
+* adjudication;
+* audit history.
+
+## Phase 5: Discovery and monitoring
+
+Deliver:
+
+* official-source configuration;
+* candidate queue;
+* scheduled search;
+* duplicate detection.
+
+## Phase 6: Analytics and comparison
+
+Deliver:
+
+* dashboard;
+* figures;
+* comparisons;
+* exports;
+* network analysis.
+
+## Phase 7: Implementation tracking
+
+Deliver commitment extraction and event monitoring.
+
+## Phase 8: Evaluation and hardening
+
+Deliver:
+
+* golden-set tooling;
+* model evaluation;
+* security;
+* observability;
+* deployment documentation.
+
+At the end of each phase:
+
+1. run tests;
+2. report files added;
+3. report architectural decisions;
+4. report known limitations;
+5. do not begin the next phase until the current phase runs.
+
+---
+
+# 37. CODING STANDARDS
+
+Use:
+
+* type hints everywhere;
+* small functions;
+* dependency injection;
+* service and repository patterns;
+* explicit exceptions;
+* structured logging;
+* docstrings for public interfaces;
+* no magic numbers;
+* no hidden global state;
+* no hard-coded credentials;
+* no silent exception swallowing.
+
+Avoid:
+
+* giant files;
+* giant agent prompts;
+* all logic in Streamlit;
+* tightly coupled model providers;
+* raw SQL scattered across the codebase;
+* non-versioned prompt strings;
+* storing JSON blobs where relational columns are needed;
+* irreversible updates;
+* overwriting human decisions.
+
+---
+
+# 38. USER EXPERIENCE PRINCIPLES
+
+The interface must make uncertainty visible.
+
+Use labels such as:
+
+* AI proposed;
+* verifier agreed;
+* reviewer approved;
+* adjudicated;
+* provisional;
+* validated;
+* low confidence;
+* rule conflict.
+
+Never use a generic green checkmark for an unreviewed AI output.
+
+The evidence quotation and location must be one click away from every code.
+
+---
+
+# 39. RESEARCH EXPORT SCHEMA
+
+Export one row per agreement with:
+
+* metadata;
+* party fields;
+* legal design variables;
+* implementation variables;
+* thematic variables;
+* cumulative scores;
+* multidimensional scores;
+* validation status;
+* confidence summaries;
+* reviewer counts;
+* codebook version;
+* dataset snapshot date.
+
+Also export:
+
+* provision-level dataset;
+* evidence-level dataset;
+* review-history dataset;
+* implementation-event dataset;
+* agreement-party edge list;
+* agreement-similarity edge list.
+
+Use stable variable names.
+
+---
+
+# 40. DEFINITION OF DONE
+
+The MVP is complete only when a user can:
+
+1. upload a CRM agreement PDF;
+2. view extracted text by page;
+3. see provision segmentation;
+4. run AI coding;
+5. inspect evidence for each code;
+6. see first-pass and verifier outputs;
+7. review or revise classifications;
+8. save final validated codes;
+9. compare the agreement against existing agreements;
+10. export a research-ready dataset;
+11. reproduce at least the principal descriptive indicators;
+12. inspect a complete audit trail.
+
+The system is not complete if it only:
+
+* summarises PDFs;
+* answers questions;
+* produces charts;
+* returns uncited classifications;
+* stores final scores without evidence;
+* lacks human review;
+* lacks prompt and codebook versioning.
+
+---
+
+# 41. FIRST EXECUTION INSTRUCTIONS
+
+Begin by doing the following:
+
+1. inspect the current repository;
+2. report whether it is empty or already contains code;
+3. propose the implementation plan;
+4. create the Phase 1 repository structure;
+5. implement configuration and environment loading;
+6. implement PostgreSQL models and migrations;
+7. implement the first version of the YAML codebook schema;
+8. populate the codebook with all variables listed above;
+9. implement document upload and local storage;
+10. implement PDF text extraction with page preservation;
+11. implement SHA-256 duplicate detection;
+12. implement basic FastAPI routes;
+13. implement the first Streamlit pages;
+14. add tests;
+15. run the tests;
+16. report exact commands used and results.
+
+Do not invent completed functionality.
+
+Do not claim tests passed unless they were actually run.
+
+Do not omit errors.
+
+Where a requirement cannot yet be completed, create a clearly documented stub with a typed interface and a TODO linked to the relevant development phase.
+
+---
+
+# 42. FINAL BEHAVIOURAL INSTRUCTION
+
+Be rigorous.
+
+This is a policy-research system whose results may be used in institutional analysis. Prefer transparency over automation, explicit uncertainty over false certainty, and reproducibility over impressive-looking but unverifiable outputs.
+
+Build the platform so that every important analytical claim can be traced back through:
+
+```text
+final validated code
+→ human or adjudication decision
+→ verifier output
+→ initial AI proposal
+→ cited provision
+→ page-level source text
+→ immutable original document
+```
+
+That traceability chain is the central design requirement of the entire system.

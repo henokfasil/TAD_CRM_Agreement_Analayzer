@@ -1,0 +1,7 @@
+models:
+  coding_model_v1:
+    provider: configurable
+    model_name: unset
+    temperature: 0
+    purpose: structured coding
+

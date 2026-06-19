@@ -1,0 +1,24 @@
+auto_accept:
+  allowed_risk_levels: [low]
+  minimum_first_pass_confidence: 0.92
+  minimum_verifier_confidence: 0.90
+  verifier_must_agree: true
+  no_rule_violations: true
+  evidence_required: true
+mandatory_human_review:
+  variables:
+    - enforceability_levels
+    - DSM_type
+    - compliance_measures
+    - inv_spec_def
+    - esg_spec_def
+    - ti_spec_def
+    - ttrt_spec_def
+  conditions:
+    - confidence_below: 0.85
+    - first_pass_verifier_disagreement: true
+    - rule_violation: true
+    - novel_provision: true
+    - unofficial_source: true
+    - OCR_quality_below: 0.80
+

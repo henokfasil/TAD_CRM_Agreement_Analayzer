@@ -1,0 +1,8 @@
+sources:
+  - name: European Commission
+    domains: ["commission.europa.eu", "ec.europa.eu"]
+    source_type: official
+  - name: United States Department of State
+    domains: ["state.gov"]
+    source_type: official
+

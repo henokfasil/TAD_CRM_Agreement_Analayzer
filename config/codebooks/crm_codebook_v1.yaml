@@ -1,0 +1,584 @@
+version: v1
+title: CRM agreement codebook v1
+variables:
+  - code: enforceability_levels
+    family: legal_institutional_design
+    label: Enforceability level
+    description: Classifies the agreement's enforceability from non-binding political cooperation to binding legal obligation with enforceable mechanisms.
+    data_type: ordinal
+    allowed_values: [0, 1, 2, 3, 4]
+    risk_level: high
+    mandatory_human_review: true
+  - code: DSM_type
+    family: legal_institutional_design
+    label: Dispute settlement mechanism type
+    description: Identifies whether the agreement contains no, consultative, diplomatic, arbitral, judicial, or other dispute settlement mechanism.
+    data_type: categorical
+    allowed_values: [none, consultation, diplomatic, arbitration, judicial, other]
+    risk_level: high
+    mandatory_human_review: true
+  - code: DSM_seq
+    family: legal_institutional_design
+    label: Dispute settlement sequence
+    description: Indicates whether dispute settlement procedures are sequenced through defined procedural stages.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: high
+    mandatory_human_review: true
+  - code: compliance_measures
+    family: legal_institutional_design
+    label: Compliance measures
+    description: Indicates whether the agreement contains compliance, follow-up, reporting, or corrective measures.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: high
+    mandatory_human_review: true
+  - code: compliance_seq
+    family: legal_institutional_design
+    label: Compliance sequence
+    description: Indicates whether compliance measures follow a defined sequence or escalation logic.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: high
+    mandatory_human_review: true
+
+  - code: actplans_rdmps
+    family: implementation_monitoring
+    label: Action plans or roadmaps
+    description: Records references to action plans, roadmaps, work programmes, or similar implementation instruments.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: mech_work_group
+    family: implementation_monitoring
+    label: Working group mechanism
+    description: Records creation or use of a working group for implementation or cooperation.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: mech_committee
+    family: implementation_monitoring
+    label: Committee mechanism
+    description: Records creation or use of a committee, council, board, or equivalent governance mechanism.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: mech_dialogue
+    family: implementation_monitoring
+    label: Dialogue mechanism
+    description: Records recurring dialogue, consultation, or meeting processes.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: mech_stakeholder
+    family: implementation_monitoring
+    label: Stakeholder mechanism
+    description: Records participation of firms, civil society, communities, experts, or other stakeholders.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: monitor_activities
+    family: implementation_monitoring
+    label: Monitoring activities
+    description: Records monitoring, review, assessment, reporting, or evaluation activities.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: monitor_activities_progress
+    family: implementation_monitoring
+    label: Monitoring of progress
+    description: Records progress tracking against activities, milestones, deliverables, or implementation status.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: inv_gen_ref
+    family: investment
+    label: General investment reference
+    description: Indicates any general reference to investment, financing, or capital mobilisation.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: inv_crm
+    family: investment
+    label: CRM-specific investment reference
+    description: Indicates investment language linked to critical raw materials, minerals, value chains, or related projects.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {inv_gen_ref: 1}}
+  - code: inv_basic_def
+    family: investment
+    label: Basic CRM investment definition
+    description: Indicates CRM investment language with at least minimal operational detail beyond a general reference.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {inv_gen_ref: 1, inv_crm: 1}}
+  - code: inv_spec_def
+    family: investment
+    label: Extensively defined CRM investment provision
+    description: Indicates CRM-related investment defined in substantial, operational, or instrument-specific detail.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: medium
+    mandatory_human_review: true
+    dependencies: {requires: {inv_gen_ref: 1, inv_crm: 1, inv_basic_def: 1}}
+    positive_criteria:
+      - names a financing mechanism
+      - names an institution
+      - identifies a specific programme
+      - specifies a quantified amount
+      - identifies concrete project-selection or implementation procedures
+    negative_criteria:
+      - general promotion of investment
+      - aspirational reference without mechanism
+      - generic reference to private-sector participation
+      - no CRM linkage
+    positive_examples:
+      - text: Participants intend to mobilise grants, guarantees, loans, or equity.
+        explanation: Specific financing instruments are listed.
+    negative_examples:
+      - text: The parties will encourage investment in critical minerals.
+        explanation: General intent without operational detail.
+  - code: com_gen_ref
+    family: investment
+    label: General commercial cooperation reference
+    description: Records general references to commercial cooperation, business links, or private-sector activity.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: com_crm
+    family: investment
+    label: CRM-specific commercial cooperation
+    description: Records commercial cooperation linked to CRM supply chains or projects.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {com_gen_ref: 1}}
+  - code: com_pub
+    family: investment
+    label: Public commercial actor
+    description: Records involvement of public bodies, state agencies, or public financial institutions in commercial cooperation.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: com_priv
+    family: investment
+    label: Private commercial actor
+    description: Records involvement of firms, investors, industry associations, or other private actors.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: com_spec_fund
+    family: investment
+    label: Specific commercial fund
+    description: Records a named fund, facility, or financing envelope for commercial cooperation.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: fac_gen_ref
+    family: investment
+    label: General facilitation reference
+    description: Records general investment facilitation, regulatory cooperation, or project-enabling language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: fac_crm
+    family: investment
+    label: CRM-specific facilitation
+    description: Records facilitation language linked to CRM supply chains or projects.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {fac_gen_ref: 1}}
+  - code: fac_pub
+    family: investment
+    label: Public facilitation actor
+    description: Records public-sector actors responsible for investment or project facilitation.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: fac_priv
+    family: investment
+    label: Private facilitation actor
+    description: Records private-sector actors in facilitation, matching, or project development.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: screen_gen_ref
+    family: investment
+    label: General screening reference
+    description: Records references to investment screening, risk assessment, or approval processes.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: screen_crm
+    family: investment
+    label: CRM-specific screening reference
+    description: Records screening or risk assessment language linked to CRM assets, projects, or supply chains.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {screen_gen_ref: 1}}
+
+  - code: esg_gen_ref
+    family: esg
+    label: General ESG reference
+    description: Records general references to environmental, social, governance, sustainability, or responsible business conduct issues.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: esg_crm
+    family: esg
+    label: CRM-specific ESG reference
+    description: Records ESG language linked to CRM extraction, processing, recycling, or supply chains.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {esg_gen_ref: 1}}
+  - code: esg_basic_def
+    family: esg
+    label: Basic ESG definition
+    description: Records ESG language with minimal substantive detail or examples.
+    data_type: binary
+    allowed_values: [0, 1]
+    dependencies: {requires: {esg_gen_ref: 1, esg_crm: 1}}
+  - code: esg_spec_def
+    family: esg
+    label: Specific ESG definition
+    description: Records detailed ESG commitments, standards, mechanisms, or implementation procedures.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: medium
+    mandatory_human_review: true
+    dependencies: {requires: {esg_gen_ref: 1, esg_crm: 1, esg_basic_def: 1}}
+  - code: lab_gen_ref
+    family: esg
+    label: General labour reference
+    description: Records general labour, employment, skills, or worker-rights language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: lab_crm
+    family: esg
+    label: CRM-specific labour reference
+    description: Records labour language linked to CRM sectors, projects, or value chains.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: lab_rights
+    family: esg
+    label: Labour rights
+    description: Records references to labour rights, decent work, collective rights, forced labour, child labour, or workplace protections.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: lab_health_com
+    family: esg
+    label: Labour health and community safety
+    description: Records worker health and safety or community health language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: soclab_local
+    family: esg
+    label: Local social and labour benefits
+    description: Records local employment, local content, community development, or local benefit-sharing provisions.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: soclab_indig
+    family: esg
+    label: Indigenous peoples and communities
+    description: Records Indigenous peoples, local communities, consultation, consent, or rights-holder language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tran_gen_ref
+    family: esg
+    label: General transparency reference
+    description: Records transparency, disclosure, traceability, governance, or anti-corruption references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tran_crm
+    family: esg
+    label: CRM-specific transparency reference
+    description: Records transparency or traceability language linked to CRM supply chains or projects.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tran_due_diligence
+    family: esg
+    label: Due diligence
+    description: Records supply-chain due diligence, responsible sourcing, or risk-management requirements.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tran_anticor
+    family: esg
+    label: Anti-corruption
+    description: Records anti-corruption, bribery prevention, integrity, or governance provisions.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: env_gen_ref
+    family: esg
+    label: General environmental reference
+    description: Records general environmental protection, sustainability, climate, biodiversity, or pollution language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: env_crm
+    family: esg
+    label: CRM-specific environmental reference
+    description: Records environmental language linked to CRM extraction, processing, recycling, or supply chains.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: env_pollution
+    family: esg
+    label: Pollution control
+    description: Records pollution prevention, waste, tailings, emissions, water contamination, or remediation language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: env_degradation
+    family: esg
+    label: Environmental degradation
+    description: Records land degradation, biodiversity loss, ecosystem damage, rehabilitation, or mine closure language.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: ti_gen_ref
+    family: trade
+    label: General trade issue reference
+    description: Records general references to trade measures, market access, restrictions, customs, or trade policy.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ti_crm
+    family: trade
+    label: CRM-specific trade issue reference
+    description: Records trade issue language linked to CRM goods, materials, inputs, or supply chains.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ti_basic_def
+    family: trade
+    label: Basic trade definition
+    description: Records trade issue language with minimal substantive detail.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ti_spec_def
+    family: trade
+    label: Specific trade definition
+    description: Records detailed trade issue commitments, mechanisms, named instruments, or implementation procedures.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: medium
+    mandatory_human_review: true
+  - code: exp_quota_gen_ref
+    family: trade
+    label: General export quota reference
+    description: Records export quota or quantitative export restriction references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: exp_quota_crm
+    family: trade
+    label: CRM-specific export quota reference
+    description: Records export quota language linked to CRM goods or materials.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: exp_tax_gen_ref
+    family: trade
+    label: General export tax reference
+    description: Records export tax, duty, levy, or fiscal export measure references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: exp_tax_crm
+    family: trade
+    label: CRM-specific export tax reference
+    description: Records export tax language linked to CRM goods or materials.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: exp_lic_gen_ref
+    family: trade
+    label: General export licensing reference
+    description: Records export licence, permit, authorisation, or administrative export control references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: exp_lic_crm
+    family: trade
+    label: CRM-specific export licensing reference
+    description: Records export licensing language linked to CRM goods or materials.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: imp_res_gen_ref
+    family: trade
+    label: General import restriction reference
+    description: Records import restrictions, licensing, customs, tariff, or import-control references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: imp_res_crm
+    family: trade
+    label: CRM-specific import restriction reference
+    description: Records import restriction language linked to CRM goods or materials.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: price_gen_ref
+    family: trade
+    label: General price measure reference
+    description: Records price floors, ceilings, stabilisation, benchmarks, or pricing mechanism references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: price_crm
+    family: trade
+    label: CRM-specific price measure reference
+    description: Records price measure language linked to CRM goods or materials.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: price_max
+    family: trade
+    label: Maximum price measure
+    description: Records price cap, ceiling, or maximum price provisions.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: price_min
+    family: trade
+    label: Minimum price measure
+    description: Records price floor, minimum price, or guaranteed minimum pricing provisions.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: other_gen_ref
+    family: trade
+    label: Other general trade issue
+    description: Records other trade issues not captured by quota, tax, licensing, import, or price variables.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: other_crm
+    family: trade
+    label: Other CRM-specific trade issue
+    description: Records other CRM-specific trade issues not captured by other trade variables.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: ttrt_gen_ref
+    family: ttrt
+    label: General technology, training, research, or transfer reference
+    description: Records general references to technology transfer, research cooperation, training, capacity building, or technical assistance.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ttrt_crm
+    family: ttrt
+    label: CRM-specific TTRT reference
+    description: Records technology, training, research, or transfer language linked to CRM supply chains or projects.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ttrt_basic_def
+    family: ttrt
+    label: Basic TTRT definition
+    description: Records TTRT language with minimal substantive detail.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: ttrt_spec_def
+    family: ttrt
+    label: Specific TTRT definition
+    description: Records detailed TTRT commitments, mechanisms, actors, outputs, programmes, or implementation procedures.
+    data_type: binary
+    allowed_values: [0, 1]
+    risk_level: medium
+    mandatory_human_review: true
+  - code: res_gen_ref
+    family: ttrt
+    label: General research reference
+    description: Records research, innovation, data, science, or analytical cooperation references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: res_crm
+    family: ttrt
+    label: CRM-specific research reference
+    description: Records research language linked to CRM supply chains, geology, processing, substitution, or recycling.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: res_sup_spec
+    family: ttrt
+    label: Specific research support
+    description: Records named research programmes, institutions, funding, facilities, or concrete research outputs.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tech_gen_ref
+    family: ttrt
+    label: General technology reference
+    description: Records technology, technical cooperation, industrial know-how, or transfer references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tech_crm
+    family: ttrt
+    label: CRM-specific technology reference
+    description: Records technology language linked to CRM extraction, processing, recycling, substitution, or manufacturing.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tech_sup_spec
+    family: ttrt
+    label: Specific technology support
+    description: Records named technologies, facilities, programmes, transfer mechanisms, or concrete technical outputs.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: train_gen_ref
+    family: ttrt
+    label: General training reference
+    description: Records training, skills, education, workforce, or capacity-building references.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: train_crm
+    family: ttrt
+    label: CRM-specific training reference
+    description: Records training language linked to CRM sectors, projects, or value chains.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: train_high_low
+    family: ttrt
+    label: Training across skill levels
+    description: Records training for high-skilled, technical, vocational, local workforce, or mixed skill levels.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: train_sup_spec
+    family: ttrt
+    label: Specific training support
+    description: Records named training programmes, institutions, funding, curricula, exchanges, or concrete capacity-building outputs.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: nonmarket_practices
+    family: economic_security
+    label: Non-market practices
+    description: Records non-market practices, unfair competition, coercion, subsidies, distortions, or similar economic-security concerns.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: state_sup
+    family: economic_security
+    label: State support
+    description: Records state support, state-owned enterprises, subsidies, or government-backed market interventions.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: dist_price
+    family: economic_security
+    label: Distorted prices
+    description: Records price distortion, dumping, artificially low prices, or market manipulation concerns.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: monopoly
+    family: economic_security
+    label: Monopoly or concentration concern
+    description: Records monopoly, concentration, single supplier dependency, market power, or chokepoint concerns.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: sec_energy
+    family: energy_transition_security
+    label: Energy security
+    description: Records energy security, supply security, resilience, or strategic autonomy language linked to energy systems.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: decarbonisation
+    family: energy_transition_security
+    label: Decarbonisation
+    description: Records decarbonisation, climate mitigation, clean energy, net zero, or low-carbon transition language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: circularity
+    family: energy_transition_security
+    label: Circularity
+    description: Records recycling, reuse, recovery, circular economy, waste reduction, or secondary raw materials language.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: efficiency
+    family: energy_transition_security
+    label: Efficiency
+    description: Records resource efficiency, material efficiency, energy efficiency, or process efficiency language.
+    data_type: binary
+    allowed_values: [0, 1]
+
+  - code: ener_trans_ind
+    family: strategic_industries
+    label: Energy transition industries
+    description: Records batteries, renewables, grids, hydrogen, or other energy-transition industries.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: tech_man_ind
+    family: strategic_industries
+    label: Technology manufacturing industries
+    description: Records semiconductors, electronics, defence, aerospace, digital, or advanced manufacturing industries.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: trans_auto_ind
+    family: strategic_industries
+    label: Transport and automotive industries
+    description: Records electric vehicles, automotive, transport equipment, charging, or mobility industries.
+    data_type: binary
+    allowed_values: [0, 1]
+

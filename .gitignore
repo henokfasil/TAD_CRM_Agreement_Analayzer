@@ -1,0 +1,14 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+data/raw/uploads/
+data/processed/
+data/exports/
+data/fixtures/runtime/
+*.db
+*.pdf
+pytest-cache-files-*/
