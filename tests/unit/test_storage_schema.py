@@ -19,4 +19,5 @@ def test_initialize_application_schema_records_version_and_tables() -> None:
     assert "manual_coding_decisions" in status["tables"]
     assert "ai_coding_proposals" in status["tables"]
     assert "ai_verification_results" in status["tables"]
+    assert "adjudication_decisions" in status["tables"]
     assert status["applied_versions"][0]["version"] == CURRENT_SCHEMA_VERSION

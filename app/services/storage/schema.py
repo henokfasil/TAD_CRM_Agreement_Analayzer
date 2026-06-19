@@ -9,6 +9,7 @@ from app.services.agreements.profiles import initialize_agreement_tables
 from app.services.classification.ai_coding import initialize_ai_coding_tables
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
 from app.services.review.manual_coding import initialize_review_tables
+from app.services.review.adjudication import initialize_adjudication_tables
 from app.services.verification.ai_verification import initialize_verification_tables
 
 CURRENT_SCHEMA_VERSION = 1
@@ -18,6 +19,7 @@ def initialize_application_schema(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> 
     resolved_db_path = initialize_workspace_db(db_path)
     initialize_agreement_tables(resolved_db_path)
     initialize_review_tables(resolved_db_path)
+    initialize_adjudication_tables(resolved_db_path)
     initialize_ai_coding_tables(resolved_db_path)
     initialize_verification_tables(resolved_db_path)
     with sqlite3.connect(resolved_db_path) as connection:

@@ -127,6 +127,16 @@ Phase 2D adds a mock verifier pass:
 - Dashboard and Reports/Exports include verifier counts and CSV export;
 - verifier results still require human review and are not adjudicated final values.
 
+Phase 2E adds human adjudication:
+
+- `app/services/review/adjudication.py` stores final prototype adjudication decisions while
+  preserving the source manual decision or AI proposal;
+- `Adjudication` page can create an adjudicated decision from either source type;
+- adjudication requires a final value, adjudicator id, and rationale;
+- Dashboard and Reports/Exports include adjudicated decision counts and CSV export;
+- this completes the prototype chain: document -> page -> candidate provision -> manual/AI proposal
+  -> verifier result -> human adjudication.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -230,6 +240,8 @@ After adding the LLM provider abstraction, the test suite result is `18 passed`.
 After adding the mock AI coding proposal pass, the test suite result is `19 passed`.
 
 After adding the mock verifier pass, the test suite result is `20 passed`.
+
+After adding human adjudication, the test suite result is `21 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
