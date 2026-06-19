@@ -5,7 +5,7 @@ from typing import Any
 
 import httpx
 
-from app.llm.errors import ExternalLLMDisabledError
+from app.llm.errors import ExternalLLMDisabledError, ExternalLLMRequestError
 from app.schemas.llm import LLMRequest, LLMResponse
 
 
@@ -55,6 +55,17 @@ class OpenAICompatibleProvider:
             )
             response.raise_for_status()
             data = response.json()
+        except httpx.HTTPStatusError as exc:
+            status_code = exc.response.status_code
+            raise ExternalLLMRequestError(
+                f"OpenAI-compatible request failed with HTTP {status_code}. "
+                "Check OPENAI_API_KEY, OPENAI_MODEL, and provider access."
+            ) from exc
+        except httpx.HTTPError as exc:
+            raise ExternalLLMRequestError(
+                "OpenAI-compatible request failed before a response was received. "
+                "Check network access and OpenAI-compatible API configuration."
+            ) from exc
         finally:
             if should_close_client:
                 client.close()

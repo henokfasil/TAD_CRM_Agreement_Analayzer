@@ -3,10 +3,15 @@ import json
 import pytest
 import httpx
 
-from app.llm.errors import ExternalLLMDisabledError
+from app.llm.errors import ExternalLLMDisabledError, ExternalLLMRequestError
 from app.llm.providers.gemini import GeminiProvider
 from app.llm.providers.openai_compatible import OpenAICompatibleProvider
-from app.llm.registry import build_provider, get_model_config, load_model_registry
+from app.llm.registry import (
+    build_provider,
+    get_model_config,
+    load_model_registry,
+    resolve_gemini_model_name,
+)
 from app.schemas.llm import LLMMessage, LLMRequest
 
 
@@ -88,7 +93,7 @@ def test_gemini_provider_requires_explicit_external_llm_enablement() -> None:
         allow_external_llm=False,
     )
     request = LLMRequest(
-        model="gemini-2.0-flash",
+        model="gemini-3.5-flash",
         messages=[LLMMessage(role="user", content="Return JSON.")],
     )
 
@@ -98,7 +103,7 @@ def test_gemini_provider_requires_explicit_external_llm_enablement() -> None:
 
 def test_gemini_provider_parses_generate_content_json_without_real_network() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
-        assert request.url.path == "/v1beta/models/gemini-2.0-flash:generateContent"
+        assert request.url.path == "/v1beta/models/gemini-3.5-flash:generateContent"
         assert request.url.params["key"] == "test-key"
         payload = json_from_request(request)
         assert payload["generationConfig"]["responseMimeType"] == "application/json"
@@ -131,7 +136,7 @@ def test_gemini_provider_parses_generate_content_json_without_real_network() -> 
         client=client,
     )
     request = LLMRequest(
-        model="gemini-2.0-flash",
+        model="gemini-3.5-flash",
         temperature=0,
         messages=[
             LLMMessage(role="system", content="Return JSON."),
@@ -146,6 +151,32 @@ def test_gemini_provider_parses_generate_content_json_without_real_network() -> 
     assert response.structured_output["proposed_value"] == 1
     assert response.prompt_tokens == 14
     assert response.completion_tokens == 9
+
+
+def test_gemini_provider_sanitizes_http_errors_without_leaking_api_key() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(404, json={"error": {"message": "not found"}})
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    provider = GeminiProvider(
+        api_key="sensitive-key",
+        allow_external_llm=True,
+        client=client,
+    )
+    request = LLMRequest(
+        model="gemini-3.5-flash",
+        messages=[LLMMessage(role="user", content="Return JSON.")],
+    )
+
+    with pytest.raises(ExternalLLMRequestError) as exc_info:
+        provider.complete(request)
+
+    assert "HTTP 404" in str(exc_info.value)
+    assert "sensitive-key" not in str(exc_info.value)
+
+
+def test_retired_gemini_model_names_map_to_current_default() -> None:
+    assert resolve_gemini_model_name("gemini-2.0-flash") == "gemini-3.5-flash"
 
 
 def json_from_request(request: httpx.Request) -> dict:

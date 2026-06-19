@@ -192,7 +192,7 @@ For Streamlit Cloud Gemini use, add either root-level secrets:
 ALLOW_EXTERNAL_LLM = "true"
 GEMINI_API_KEY = "..."
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.5-flash"
 ```
 
 or grouped secrets:
@@ -202,7 +202,7 @@ or grouped secrets:
 allow_external_llm = "true"
 api_key = "..."
 base_url = "https://generativelanguage.googleapis.com/v1beta"
-model = "gemini-2.0-flash"
+model = "gemini-3.5-flash"
 ```
 
 Git is initialized locally using a separate metadata directory outside OneDrive:
@@ -339,6 +339,19 @@ Phase 2H adds capped batch AI proposal generation:
 - `tests/unit/test_ai_coding.py` covers skip behavior for existing proposal/model/variable pairs.
 
 After adding capped batch AI proposal generation, the test suite result is `27 passed`.
+
+Cloud hotfix after Phase 2H:
+
+- Gemini batch runs failed with HTTP 404 when `GEMINI_MODEL` was set to retired
+  `gemini-2.0-flash`;
+- Gemini defaults now use `gemini-3.5-flash`;
+- `app/llm/registry.py` maps retired Gemini model names, including `gemini-2.0-flash`, to the
+  current default so stale Streamlit secrets do not break the app;
+- external provider HTTP errors are wrapped in sanitized `ExternalLLMRequestError` messages so API
+  keys are not echoed in Streamlit error output;
+- `Admin and Codebook > Models` now shows configured and effective Gemini model values.
+
+After the Gemini model/error-sanitization hotfix, the test suite result is `29 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

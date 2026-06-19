@@ -12,7 +12,11 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
-from app.llm.registry import load_model_registry, resolve_runtime_model_config
+from app.llm.registry import (
+    load_model_registry,
+    resolve_gemini_model_name,
+    resolve_runtime_model_config,
+)
 from app.services.codebook import load_codebook
 from app.services.storage.schema import get_schema_status, initialize_application_schema
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
@@ -50,7 +54,8 @@ with tab_models:
             "openai_model": settings.openai_model,
             "gemini_api_key_configured": bool(settings.gemini_api_key),
             "gemini_base_url": settings.gemini_base_url,
-            "gemini_model": settings.gemini_model,
+            "gemini_model_configured": settings.gemini_model,
+            "gemini_model_effective": resolve_gemini_model_name(settings.gemini_model),
         }
     )
     st.dataframe(

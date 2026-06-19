@@ -44,7 +44,7 @@ To use Gemini instead, configure:
 ALLOW_EXTERNAL_LLM = "true"
 GEMINI_API_KEY = "your_key_here"
 GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.5-flash"
 ```
 
 Never commit a real API key.

@@ -12,6 +12,15 @@ from app.llm.providers.openai_compatible import OpenAICompatibleProvider
 from app.schemas.llm import ModelConfig, ModelRegistry
 
 
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash"
+RETIRED_GEMINI_MODELS = {
+    "gemini-1.0-pro",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+    "gemini-2.0-flash",
+}
+
+
 def load_model_registry(path: str | Path) -> ModelRegistry:
     with Path(path).open("r", encoding="utf-8") as handle:
         payload = yaml.safe_load(handle)
@@ -30,8 +39,16 @@ def resolve_runtime_model_config(config: ModelConfig) -> ModelConfig:
     if config.provider == "gemini":
         settings = get_settings()
         if settings.gemini_model:
-            return config.model_copy(update={"model_name": settings.gemini_model})
+            return config.model_copy(
+                update={"model_name": resolve_gemini_model_name(settings.gemini_model)}
+            )
     return config
+
+
+def resolve_gemini_model_name(model_name: str) -> str:
+    if model_name in RETIRED_GEMINI_MODELS:
+        return DEFAULT_GEMINI_MODEL
+    return model_name
 
 
 def build_provider(config: ModelConfig) -> LLMProvider:

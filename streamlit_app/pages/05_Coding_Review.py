@@ -303,10 +303,14 @@ with tab_ai:
                     else:
                         for proposal in result["created"]:
                             save_ai_coding_proposal(proposal)
-                        st.success(
+                        summary_message = (
                             f"Saved {len(result['created'])} pending AI proposals; "
                             f"skipped {len(result['skipped'])}."
                         )
+                        if result["errors"] and not result["created"]:
+                            st.error(summary_message)
+                        else:
+                            st.success(summary_message)
                         if result["errors"]:
                             st.warning("Batch stopped after an error.")
                             st.json(result["errors"])

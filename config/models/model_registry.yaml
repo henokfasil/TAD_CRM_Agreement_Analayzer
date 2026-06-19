@@ -11,6 +11,6 @@ models:
     purpose: external structured coding with OpenAI Responses API
   gemini_coding_model:
     provider: gemini
-    model_name: gemini-2.0-flash
+    model_name: gemini-3.5-flash
     temperature: 0
     purpose: external structured coding with Gemini API
