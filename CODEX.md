@@ -97,3 +97,13 @@ uv run python scripts/seed_codebook.py
 ```
 
 Result: `Loaded 88 variables from v1.`
+
+Streamlit on this Windows setup should be launched from the project folder with `python -m streamlit`
+rather than the direct `streamlit` console script:
+
+```powershell
+cd "C:\Users\telila_h\OneDrive - OECD\OECD files\CRM_Agreements"
+$env:UV_CACHE_DIR = Join-Path $env:TEMP 'crm-uv-cache'
+$env:UV_PROJECT_ENVIRONMENT = Join-Path $env:TEMP 'crm-agreement-intelligence-venv'
+uv run python -m streamlit run streamlit_app/Home.py
+```
