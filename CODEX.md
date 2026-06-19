@@ -90,6 +90,14 @@ Phase 1H adds prototype SQLite schema management:
 - feature services still defensively initialize their own tables, but the schema service is the
   canonical place to inspect prototype storage health.
 
+Phase 2A adds a codebook dependency/rule engine:
+
+- `app/services/classification/rules.py` evaluates `dependencies.requires` from the active codebook;
+- Coding Review now shows dependency pass/conflict/not-applicable feedback before saving a manual
+  coding decision;
+- rule checks are advisory in the prototype but make hierarchy conflicts visible before AI coding is
+  introduced.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -185,6 +193,8 @@ After adding dashboard/export reporting, the test suite result is `11 passed`.
 After adding agreement profiles and review queue, the test suite result is `13 passed`.
 
 After adding prototype schema management, the test suite result is `14 passed`.
+
+After adding codebook dependency rules, the test suite result is `17 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

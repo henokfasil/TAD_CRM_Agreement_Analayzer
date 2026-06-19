@@ -10,6 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
+from app.services.classification.rules import evaluate_dependency_rules, summarize_rule_result
 from app.services.codebook import load_codebook
 from app.services.ingestion.workspace import load_document_records
 from app.services.review.manual_coding import (
@@ -113,6 +114,19 @@ with tab_review:
                 height=140,
             )
             reviewer_note = st.text_area("Reviewer note", height=100)
+            rule_result = evaluate_dependency_rules(
+                selected_variable,
+                proposed_value,
+                decisions,
+                selected_provision["provision_id"],
+            )
+            if rule_result["status"] == "violation":
+                st.error(summarize_rule_result(rule_result))
+                st.json(rule_result["violations"])
+            elif rule_result["status"] == "pass":
+                st.success(summarize_rule_result(rule_result))
+            else:
+                st.caption(summarize_rule_result(rule_result))
 
             if st.button("Save manual coding decision", type="primary"):
                 decision = build_manual_decision(
