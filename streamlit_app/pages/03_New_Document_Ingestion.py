@@ -5,9 +5,13 @@ from pathlib import Path
 
 import streamlit as st
 
+from streamlit_app.bootstrap import ensure_project_root_on_path
+
+ensure_project_root_on_path()
+
 from app.core.config import get_settings
 from app.core.exceptions import ExtractionError
-from app.services.ingestion.storage import sha256_file, store_upload
+from app.services.ingestion.storage import store_upload
 from app.services.parsing.pdf import extract_pdf_pages
 
 st.title("New Document Ingestion")

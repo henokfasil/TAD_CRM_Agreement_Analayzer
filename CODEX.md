@@ -16,6 +16,10 @@ Streamlit Community Cloud deploys from GitHub using `requirements.txt`. Do not c
 the OECD Windows environment because it can capture internal Nexus package URLs that Streamlit Cloud
 cannot resolve.
 
+Streamlit pages import backend code through `streamlit_app/bootstrap.py`, which adds the repository
+root to `sys.path`. This is needed because Streamlit Cloud launches `streamlit_app/Home.py` and may
+otherwise fail with `ModuleNotFoundError: No module named 'app'` when pages import backend services.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -95,6 +99,8 @@ uv run --extra dev python -m pytest
 ```
 
 Result: `4 passed`.
+
+After adding the Streamlit bootstrap import-path helper, the test suite result is `5 passed`.
 
 Smoke commands:
 

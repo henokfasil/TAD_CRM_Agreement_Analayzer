@@ -4,6 +4,10 @@ from pathlib import Path
 
 import streamlit as st
 
+from streamlit_app.bootstrap import ensure_project_root_on_path
+
+ensure_project_root_on_path()
+
 from app.core.config import get_settings
 from app.services.codebook import load_codebook
 
