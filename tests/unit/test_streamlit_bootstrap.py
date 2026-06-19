@@ -12,3 +12,19 @@ def test_streamlit_home_adds_project_root_for_cloud_imports() -> None:
         assert str(project_root) in sys.path
     finally:
         sys.path = original_path
+
+
+def test_admin_codebook_rows_are_arrow_safe() -> None:
+    module_globals = runpy.run_path(
+        "streamlit_app/pages/12_Admin_and_Codebook.py",
+        run_name="__streamlit_test__",
+    )
+
+    rows = module_globals["renderable_codebook_rows"]()
+
+    assert rows
+    assert all(
+        not isinstance(value, (list, dict))
+        for row in rows
+        for value in row.values()
+    )

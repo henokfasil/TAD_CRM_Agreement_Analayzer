@@ -315,6 +315,17 @@ After adding gated OpenAI API support, the test suite result is `23 passed`.
 
 After adding gated Gemini API support, the test suite result is `25 passed`.
 
+Cloud hotfix after Phase 2G:
+
+- Streamlit Cloud raised `pyarrow.lib.ArrowInvalid` on `Admin and Codebook > Codebook` because
+  nested codebook fields such as lists/dicts were passed directly to `st.dataframe`;
+- `streamlit_app/pages/12_Admin_and_Codebook.py` now JSON-serializes nested codebook fields before
+  rendering the dataframe;
+- `tests/unit/test_streamlit_bootstrap.py` includes a regression check that rendered codebook rows
+  contain only Arrow-safe scalar values.
+
+After the Admin codebook dataframe hotfix, the test suite result is `26 passed`.
+
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
 in this workspace unless the project is moved to a normal local filesystem.
