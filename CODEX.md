@@ -98,6 +98,15 @@ Phase 2A adds a codebook dependency/rule engine:
 - rule checks are advisory in the prototype but make hierarchy conflicts visible before AI coding is
   introduced.
 
+Phase 2B adds a provider-agnostic LLM abstraction:
+
+- `app/schemas/llm.py` defines typed LLM messages, requests, responses, and model registry config;
+- `app/llm/base.py` defines the provider protocol;
+- `app/llm/providers/mock.py` provides a deterministic mock provider for safe prototype wiring;
+- `app/llm/registry.py` loads model registry YAML and builds providers;
+- `config/models/model_registry.yaml` defaults `coding_model_v1` to the mock provider;
+- `Admin and Codebook` shows model registry configuration and notes that no external AI is called.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -195,6 +204,8 @@ After adding agreement profiles and review queue, the test suite result is `13 p
 After adding prototype schema management, the test suite result is `14 passed`.
 
 After adding codebook dependency rules, the test suite result is `17 passed`.
+
+After adding the LLM provider abstraction, the test suite result is `18 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

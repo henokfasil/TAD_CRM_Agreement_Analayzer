@@ -1,7 +1,6 @@
 models:
   coding_model_v1:
-    provider: configurable
-    model_name: unset
+    provider: mock
+    model_name: mock-coding-v1
     temperature: 0
-    purpose: structured coding
-
+    purpose: structured coding prototype
