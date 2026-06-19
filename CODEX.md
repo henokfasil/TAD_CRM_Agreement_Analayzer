@@ -107,6 +107,16 @@ Phase 2B adds a provider-agnostic LLM abstraction:
 - `config/models/model_registry.yaml` defaults `coding_model_v1` to the mock provider;
 - `Admin and Codebook` shows model registry configuration and notes that no external AI is called.
 
+Phase 2C adds a first AI coding pass using only the mock provider:
+
+- `app/services/classification/ai_coding.py` builds structured coding requests and saves AI proposals;
+- proposals are stored separately from manual coding decisions in `ai_coding_proposals`;
+- Coding Review now includes an `AI Proposal` tab for running the deterministic mock provider;
+- AI proposal records include model, provider, prompt version, codebook version, rule status,
+  reviewer status `pending`, and verification status `not_verified`;
+- Dashboard and Reports/Exports include AI proposal counts and CSV export;
+- these are explicitly provisional AI proposals, not validated legal coding.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -206,6 +216,8 @@ After adding prototype schema management, the test suite result is `14 passed`.
 After adding codebook dependency rules, the test suite result is `17 passed`.
 
 After adding the LLM provider abstraction, the test suite result is `18 passed`.
+
+After adding the mock AI coding proposal pass, the test suite result is `19 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

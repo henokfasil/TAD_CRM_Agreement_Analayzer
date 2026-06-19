@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from app.services.agreements.profiles import initialize_agreement_tables
+from app.services.classification.ai_coding import initialize_ai_coding_tables
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
 from app.services.review.manual_coding import initialize_review_tables
 
@@ -16,6 +17,7 @@ def initialize_application_schema(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> 
     resolved_db_path = initialize_workspace_db(db_path)
     initialize_agreement_tables(resolved_db_path)
     initialize_review_tables(resolved_db_path)
+    initialize_ai_coding_tables(resolved_db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
             """
@@ -69,4 +71,3 @@ def get_schema_status(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> dict[str, An
         "applied_versions": [dict(row) for row in versions],
         "tables": [row["name"] for row in tables],
     }
-

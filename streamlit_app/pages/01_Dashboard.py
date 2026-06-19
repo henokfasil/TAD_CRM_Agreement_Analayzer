@@ -13,19 +13,22 @@ from app.services.ingestion.workspace import load_document_records
 from app.services.reporting.exports import build_candidate_provisions, build_workspace_summary
 from app.services.review.manual_coding import load_manual_decisions
 from app.services.agreements.profiles import load_agreement_profiles
+from app.services.classification.ai_coding import load_ai_coding_proposals
 
 st.title("Dashboard")
 records = load_document_records()
 decisions = load_manual_decisions()
 profiles = load_agreement_profiles()
-summary = build_workspace_summary(records, decisions, profiles)
+ai_proposals = load_ai_coding_proposals()
+summary = build_workspace_summary(records, decisions, profiles, ai_proposals)
 
-col_a, col_b, col_c, col_d, col_e = st.columns(5)
+col_a, col_b, col_c, col_d, col_e, col_f = st.columns(6)
 col_a.metric("Agreements", summary["agreement_profiles"])
 col_b.metric("Documents", summary["documents"])
 col_c.metric("Pages", summary["pages"])
 col_d.metric("Candidate provisions", summary["candidate_provisions"])
 col_e.metric("Manual decisions", summary["manual_coding_decisions"])
+col_f.metric("AI proposals", summary["ai_coding_proposals"])
 
 st.caption(
     "Dashboard values currently reflect the prototype workspace. "

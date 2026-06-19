@@ -39,13 +39,16 @@ def test_reporting_bundle_contains_workspace_outputs() -> None:
     ]
 
     profiles = [{"agreement_id": "a1", "canonical_title": "Critical Minerals Partnership"}]
-    summary = build_workspace_summary(records, decisions, profiles)
-    bundle = build_research_export_bundle(records, decisions, profiles)
+    ai_proposals = [{"proposal_id": "a1", "variable_code": "mech_work_group"}]
+    summary = build_workspace_summary(records, decisions, profiles, ai_proposals)
+    bundle = build_research_export_bundle(records, decisions, profiles, ai_proposals)
 
     assert summary["agreement_profiles"] == 1
     assert summary["documents"] == 1
     assert summary["manual_coding_decisions"] == 1
+    assert summary["ai_coding_proposals"] == 1
     assert len(build_candidate_provisions(records)) == 1
     assert "mech_work_group" in bundle["manual_decisions_csv"]
     assert "Critical Minerals Partnership" in bundle["agreement_profiles_csv"]
+    assert "mech_work_group" in bundle["ai_proposals_csv"]
     assert "candidate_provisions" in bundle["summary_json"]

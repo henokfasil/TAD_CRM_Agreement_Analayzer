@@ -10,6 +10,12 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
+from app.services.classification.ai_coding import (
+    ai_proposals_to_csv,
+    load_ai_coding_proposals,
+    run_ai_coding_proposal,
+    save_ai_coding_proposal,
+)
 from app.services.classification.rules import evaluate_dependency_rules, summarize_rule_result
 from app.services.codebook import load_codebook
 from app.services.ingestion.workspace import load_document_records
@@ -29,8 +35,11 @@ settings = get_settings()
 codebook = load_codebook(settings.active_codebook_path)
 records = load_document_records()
 decisions = load_manual_decisions()
+ai_proposals = load_ai_coding_proposals()
 
-tab_review, tab_queue, tab_saved = st.tabs(["Manual Coding", "Review Queue", "Saved Decisions"])
+tab_review, tab_ai, tab_queue, tab_saved = st.tabs(
+    ["Manual Coding", "AI Proposal", "Review Queue", "Saved Decisions"]
+)
 
 with tab_review:
     if not records:
@@ -142,6 +151,73 @@ with tab_review:
                 st.success("Manual coding decision saved.")
                 st.rerun()
 
+with tab_ai:
+    st.caption(
+        "This prototype uses the deterministic mock provider only. "
+        "AI outputs are saved as provisional proposals requiring review."
+    )
+    if not records:
+        st.info("No extracted documents are available. Use New Document Ingestion first.")
+    else:
+        selected_document_id = st.selectbox(
+            "AI document",
+            [record["document_id"] for record in records],
+            format_func=lambda value: next(
+                record["original_filename"] for record in records if record["document_id"] == value
+            ),
+        )
+        selected_document = next(
+            record for record in records if record["document_id"] == selected_document_id
+        )
+        provisions = segment_document_pages(selected_document)
+        if not provisions:
+            st.info("No candidate provisions were detected for this document.")
+        else:
+            selected_provision_id = st.selectbox(
+                "AI candidate provision",
+                [provision["provision_id"] for provision in provisions],
+                format_func=lambda value: next(
+                    f"Page {provision['page_start']} | {provision['provision_text'][:90]}"
+                    for provision in provisions
+                    if provision["provision_id"] == value
+                ),
+            )
+            selected_provision = next(
+                provision for provision in provisions if provision["provision_id"] == selected_provision_id
+            )
+            st.text_area("AI provision text", selected_provision["provision_text"], height=220, disabled=True)
+
+            family_options = sorted({variable.family for variable in codebook.variables})
+            selected_family = st.selectbox("AI codebook family", family_options)
+            variable_options = [
+                variable for variable in codebook.variables if variable.family == selected_family
+            ]
+            selected_variable_code = st.selectbox(
+                "AI variable",
+                [variable.code for variable in variable_options],
+                format_func=lambda value: next(
+                    f"{variable.code} - {variable.label}"
+                    for variable in variable_options
+                    if variable.code == value
+                ),
+            )
+            selected_variable = next(
+                variable for variable in variable_options if variable.code == selected_variable_code
+            )
+
+            if st.button("Run mock AI proposal", type="primary"):
+                proposal = run_ai_coding_proposal(
+                    document_id=selected_document["document_id"],
+                    provision=selected_provision,
+                    variable=selected_variable,
+                    existing_decisions=decisions,
+                    codebook_version=codebook.version,
+                )
+                save_ai_coding_proposal(proposal)
+                st.success("Mock AI proposal saved as pending and unverified.")
+                st.json(proposal)
+                st.rerun()
+
 with tab_queue:
     all_provisions = []
     for record in records:
@@ -150,12 +226,18 @@ with tab_queue:
             all_provisions.append(provision)
     uncoded = build_uncoded_provision_queue(all_provisions, decisions)
     pending = build_decision_review_queue(decisions)
+    pending_ai = [proposal for proposal in ai_proposals if proposal["reviewer_status"] == "pending"]
 
-    col_q1, col_q2 = st.columns(2)
+    col_q1, col_q2, col_q3 = st.columns(3)
     col_q1.metric("Uncoded candidate provisions", len(uncoded))
     col_q2.metric("Provisional or uncertain decisions", len(pending))
+    col_q3.metric("Pending AI proposals", len(pending_ai))
 
-    queue_view = st.radio("Queue view", ["Uncoded provisions", "Pending decisions"], horizontal=True)
+    queue_view = st.radio(
+        "Queue view",
+        ["Uncoded provisions", "Pending decisions", "Pending AI proposals"],
+        horizontal=True,
+    )
     if queue_view == "Uncoded provisions":
         if uncoded:
             st.dataframe(
@@ -174,10 +256,14 @@ with tab_queue:
         else:
             st.success("No uncoded candidate provisions in the current workspace.")
     else:
-        if pending:
+        if queue_view == "Pending decisions" and pending:
             st.dataframe(pending, use_container_width=True, hide_index=True)
-        else:
+        elif queue_view == "Pending AI proposals" and pending_ai:
+            st.dataframe(pending_ai, use_container_width=True, hide_index=True)
+        elif queue_view == "Pending decisions":
             st.success("No provisional or uncertain manual coding decisions.")
+        else:
+            st.success("No pending AI proposals.")
 
 with tab_saved:
     st.subheader("Saved Manual Decisions")
@@ -190,5 +276,17 @@ with tab_saved:
             "Download manual coding decisions CSV",
             decisions_to_csv(decisions),
             file_name="crm_manual_coding_decisions.csv",
+            mime="text/csv",
+        )
+    st.subheader("Saved AI Proposals")
+    ai_proposals = load_ai_coding_proposals()
+    if not ai_proposals:
+        st.info("No AI coding proposals saved yet.")
+    else:
+        st.dataframe(ai_proposals, use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download AI proposals CSV",
+            ai_proposals_to_csv(ai_proposals),
+            file_name="crm_ai_coding_proposals.csv",
             mime="text/csv",
         )
