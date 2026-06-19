@@ -6,6 +6,7 @@ import yaml
 
 from app.core.config import get_settings
 from app.llm.base import LLMProvider
+from app.llm.providers.gemini import GeminiProvider
 from app.llm.providers.mock import MockLLMProvider
 from app.llm.providers.openai_compatible import OpenAICompatibleProvider
 from app.schemas.llm import ModelConfig, ModelRegistry
@@ -26,6 +27,10 @@ def resolve_runtime_model_config(config: ModelConfig) -> ModelConfig:
         settings = get_settings()
         if settings.openai_model:
             return config.model_copy(update={"model_name": settings.openai_model})
+    if config.provider == "gemini":
+        settings = get_settings()
+        if settings.gemini_model:
+            return config.model_copy(update={"model_name": settings.gemini_model})
     return config
 
 
@@ -37,6 +42,13 @@ def build_provider(config: ModelConfig) -> LLMProvider:
         return OpenAICompatibleProvider(
             api_key=settings.openai_api_key,
             base_url=settings.openai_base_url,
+            allow_external_llm=settings.allow_external_llm,
+        )
+    if config.provider == "gemini":
+        settings = get_settings()
+        return GeminiProvider(
+            api_key=settings.gemini_api_key,
+            base_url=settings.gemini_base_url,
             allow_external_llm=settings.allow_external_llm,
         )
     raise ValueError(f"Unsupported LLM provider: {config.provider}")

@@ -35,6 +35,9 @@ with tab_models:
             "openai_api_key_configured": bool(settings.openai_api_key),
             "openai_base_url": settings.openai_base_url,
             "openai_model": settings.openai_model,
+            "gemini_api_key_configured": bool(settings.gemini_api_key),
+            "gemini_base_url": settings.gemini_base_url,
+            "gemini_model": settings.gemini_model,
         }
     )
     st.dataframe(

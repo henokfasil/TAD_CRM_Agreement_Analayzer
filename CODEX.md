@@ -172,6 +172,39 @@ base_url = "https://api.openai.com/v1"
 model = "gpt-4.1-mini"
 ```
 
+Phase 2G adds gated Gemini API support:
+
+- `app/llm/providers/gemini.py` implements a Gemini `generateContent` provider using `httpx`;
+- Gemini uses the same `ALLOW_EXTERNAL_LLM=true` gate and requires `GEMINI_API_KEY`;
+- `GEMINI_BASE_URL` defaults to `https://generativelanguage.googleapis.com/v1beta`, and
+  `GEMINI_MODEL` controls the runtime model name for Gemini-backed registry entries;
+- `config/models/model_registry.yaml` adds `gemini_coding_model`, while keeping the deterministic
+  mock provider as the default safest option;
+- `Coding Review` can now run mock, OpenAI-compatible, or Gemini model configurations from the
+  same AI Proposal tab;
+- `Admin and Codebook` reports whether the Gemini key is configured without exposing the key;
+- `streamlit_app/runtime_config.py` supports both root-level Gemini secrets and grouped
+  `[gemini]` secrets.
+
+For Streamlit Cloud Gemini use, add either root-level secrets:
+
+```toml
+ALLOW_EXTERNAL_LLM = "true"
+GEMINI_API_KEY = "..."
+GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+GEMINI_MODEL = "gemini-2.0-flash"
+```
+
+or grouped secrets:
+
+```toml
+[gemini]
+allow_external_llm = "true"
+api_key = "..."
+base_url = "https://generativelanguage.googleapis.com/v1beta"
+model = "gemini-2.0-flash"
+```
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -279,6 +312,8 @@ After adding the mock verifier pass, the test suite result is `20 passed`.
 After adding human adjudication, the test suite result is `21 passed`.
 
 After adding gated OpenAI API support, the test suite result is `23 passed`.
+
+After adding gated Gemini API support, the test suite result is `25 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

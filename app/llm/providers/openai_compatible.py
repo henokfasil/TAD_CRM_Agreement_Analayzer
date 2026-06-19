@@ -5,11 +5,8 @@ from typing import Any
 
 import httpx
 
+from app.llm.errors import ExternalLLMDisabledError
 from app.schemas.llm import LLMRequest, LLMResponse
-
-
-class ExternalLLMDisabledError(RuntimeError):
-    """Raised when an external LLM call is requested without explicit approval."""
 
 
 class OpenAICompatibleProvider:

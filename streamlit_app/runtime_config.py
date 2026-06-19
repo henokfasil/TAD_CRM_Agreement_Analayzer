@@ -13,6 +13,9 @@ SECRET_ENV_KEYS = {
     "OPENAI_API_KEY",
     "OPENAI_BASE_URL",
     "OPENAI_MODEL",
+    "GEMINI_API_KEY",
+    "GEMINI_BASE_URL",
+    "GEMINI_MODEL",
 }
 
 OPENAI_SECRET_MAP = {
@@ -22,11 +25,19 @@ OPENAI_SECRET_MAP = {
     "allow_external_llm": "ALLOW_EXTERNAL_LLM",
 }
 
+GEMINI_SECRET_MAP = {
+    "api_key": "GEMINI_API_KEY",
+    "base_url": "GEMINI_BASE_URL",
+    "model": "GEMINI_MODEL",
+    "allow_external_llm": "ALLOW_EXTERNAL_LLM",
+}
+
 
 def sync_streamlit_secrets_to_env() -> None:
     try:
         secrets = st.secrets
         openai_secrets = secrets.get("openai", {})
+        gemini_secrets = secrets.get("gemini", {})
     except StreamlitSecretNotFoundError:
         return
 
@@ -36,6 +47,10 @@ def sync_streamlit_secrets_to_env() -> None:
     if isinstance(openai_secrets, Mapping):
         for secret_key, env_key in OPENAI_SECRET_MAP.items():
             _set_env_if_present(env_key, openai_secrets, secret_key)
+
+    if isinstance(gemini_secrets, Mapping):
+        for secret_key, env_key in GEMINI_SECRET_MAP.items():
+            _set_env_if_present(env_key, gemini_secrets, secret_key)
 
 
 def _set_env_if_present(

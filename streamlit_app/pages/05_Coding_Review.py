@@ -10,7 +10,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
-from app.llm.providers.openai_compatible import ExternalLLMDisabledError
+from app.llm.errors import ExternalLLMDisabledError
 from app.llm.registry import load_model_registry, resolve_runtime_model_config
 from app.services.classification.ai_coding import (
     ai_proposals_to_csv,
@@ -183,6 +183,14 @@ with tab_ai:
             st.warning(
                 "OpenAI is configured in the registry but disabled until "
                 "ALLOW_EXTERNAL_LLM=true and OPENAI_API_KEY are set."
+            )
+    elif selected_model_config.provider == "gemini":
+        if settings.allow_external_llm and settings.gemini_api_key:
+            st.success("Gemini calls are enabled for this session.")
+        else:
+            st.warning(
+                "Gemini is configured in the registry but disabled until "
+                "ALLOW_EXTERNAL_LLM=true and GEMINI_API_KEY are set."
             )
     if not records:
         st.info("No extracted documents are available. Use New Document Ingestion first.")
