@@ -42,6 +42,19 @@ OneDrive lock-file problem that broke normal `git init`.
 Do not present AI-generated legal coding as validated fact. Keep raw AI outputs, verifier outputs,
 review decisions, adjudication decisions, and final validated decisions distinct in both schema and UI.
 
+## Session Handoff Rule
+
+Always update this `CODEX.md` file whenever meaningful project state changes, including:
+
+- new architecture or implementation decisions;
+- completed phases or milestones;
+- commands that were run and their results;
+- known blockers, environment quirks, or workarounds;
+- Git/GitHub setup changes;
+- next recommended steps.
+
+Treat this file as the first thing a future Codex session should read before continuing work.
+
 ## Next Recommended Work
 
 1. Run `uv sync --extra dev` if dependencies are not installed.
