@@ -21,6 +21,15 @@ before importing backend code. This is needed because Streamlit Cloud launches `
 and may otherwise fail with import errors such as `ModuleNotFoundError: No module named 'app'` or
 `No module named 'streamlit_app'`.
 
+The app is deployed on Streamlit Community Cloud at:
+
+```text
+https://crmagreement.streamlit.app
+```
+
+The cloud deployment currently shows the Phase 1 shell and codebook count. The local PDF is not
+included in GitHub because `*.pdf` is ignored; cloud users should use the upload tab for documents.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
