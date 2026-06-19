@@ -353,6 +353,23 @@ Cloud hotfix after Phase 2H:
 
 After the Gemini model/error-sanitization hotfix, the test suite result is `29 passed`.
 
+Presentation handoff / pause state:
+
+- Work is paused after a functional prototype reached the following demonstration flow:
+  PDF upload -> page extraction -> candidate provision segmentation -> AI proposal generation
+  with Gemini/OpenAI-compatible providers -> mock verification -> human adjudication -> exports.
+- Streamlit Cloud deployment is live at `https://crmagreement.streamlit.app`.
+- The user verified the app can create saved AI proposals and verification results in Streamlit.
+- `docs/team_leader_email_drafts.md` contains email options for requesting a presentation with the
+  team leader.
+- `docs/team_leader_one_pager.md` contains a one-page concept proposal suitable to attach or adapt.
+- Suggested presentation framing: describe it as an innovative human-in-the-loop prototype, not a
+  final production tool; ask for feedback/approval before sharing the working implementation more
+  broadly.
+- Future extension idea captured but not implemented: a scheduled discovery layer that searches for
+  newly published CRM agreements, places candidates in a review queue, and only ingests approved
+  documents into the current workflow.
+
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
 in this workspace unless the project is moved to a normal local filesystem.
