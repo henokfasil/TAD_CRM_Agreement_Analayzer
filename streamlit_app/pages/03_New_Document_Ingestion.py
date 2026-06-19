@@ -13,12 +13,21 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.core.config import get_settings
 from app.core.exceptions import ExtractionError
 from app.services.ingestion.storage import store_upload
+from app.services.ingestion.workspace import (
+    build_document_record,
+    pages_to_csv,
+    records_to_json,
+    upsert_document_record,
+)
 from app.services.parsing.pdf import extract_pdf_pages
 
 st.title("New Document Ingestion")
 settings = get_settings()
 
-tab_upload, tab_local = st.tabs(["Upload", "Local PDF"])
+if "document_workspace" not in st.session_state:
+    st.session_state.document_workspace = []
+
+tab_upload, tab_local, tab_workspace = st.tabs(["Upload", "Local PDF", "Workspace"])
 
 
 def render_extraction(path: Path, original_filename: str | None = None) -> None:
@@ -39,6 +48,12 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
     except ExtractionError as exc:
         st.error(str(exc))
         return
+
+    record = build_document_record(stored, extraction)
+    st.session_state.document_workspace = upsert_document_record(
+        st.session_state.document_workspace,
+        record,
+    )
 
     st.subheader("Page-Level Extraction")
     col_method, col_pages = st.columns(2)
@@ -66,6 +81,8 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
             }
         )
 
+    st.caption("This document is now available in the Workspace tab and Agreement Explorer.")
+
 
 with tab_upload:
     uploaded = st.file_uploader("Upload agreement document", type=["pdf", "docx", "txt"])
@@ -85,3 +102,52 @@ with tab_local:
             render_extraction(local_pdf, local_pdf.name)
     else:
         st.info("No `CRM Agreements.pdf` file found in the project root.")
+
+with tab_workspace:
+    records = st.session_state.document_workspace
+    if not records:
+        st.info("No documents have been extracted in this browser session yet.")
+    else:
+        st.metric("Documents in workspace", len(records))
+        st.dataframe(
+            [
+                {
+                    "filename": record["original_filename"],
+                    "pages": record["page_count"],
+                    "sha256": record["sha256_hash"][:12],
+                    "parser": record["extraction_method"],
+                }
+                for record in records
+            ],
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        selected_id = st.selectbox(
+            "Document",
+            [record["document_id"] for record in records],
+            format_func=lambda value: next(
+                record["original_filename"] for record in records if record["document_id"] == value
+            ),
+        )
+        selected = next(record for record in records if record["document_id"] == selected_id)
+        page_numbers = [page["page_number"] for page in selected["pages"]]
+        selected_page_number = st.selectbox("Workspace page", page_numbers)
+        selected_page = next(
+            page for page in selected["pages"] if page["page_number"] == selected_page_number
+        )
+        st.text_area("Workspace extracted text", selected_page["text"], height=320)
+
+        col_json, col_csv = st.columns(2)
+        col_json.download_button(
+            "Download workspace JSON",
+            records_to_json(records),
+            file_name="crm_document_workspace.json",
+            mime="application/json",
+        )
+        col_csv.download_button(
+            "Download extracted pages CSV",
+            pages_to_csv(records),
+            file_name="crm_extracted_pages.csv",
+            mime="text/csv",
+        )

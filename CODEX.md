@@ -30,6 +30,13 @@ https://crmagreement.streamlit.app
 The cloud deployment currently shows the Phase 1 shell and codebook count. The local PDF is not
 included in GitHub because `*.pdf` is ignored; cloud users should use the upload tab for documents.
 
+Phase 1B adds a Streamlit session document workspace:
+
+- `New Document Ingestion` registers extracted PDFs in `st.session_state.document_workspace`;
+- `Agreement Explorer` can browse extracted documents and page-level text from that session;
+- workspace data can be downloaded as JSON or page-level CSV;
+- this is session-scoped and ephemeral on Streamlit Cloud until a real database is attached.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -111,6 +118,12 @@ uv run --extra dev python -m pytest
 Result: `4 passed`.
 
 After adding the Streamlit import-path guard, the test suite result is `5 passed`.
+
+After adding the session document workspace, the test suite result is `6 passed`.
+
+`python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
+`PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
+in this workspace unless the project is moved to a normal local filesystem.
 
 Smoke commands:
 
