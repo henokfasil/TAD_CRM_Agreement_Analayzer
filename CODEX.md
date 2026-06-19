@@ -35,6 +35,8 @@ OneDrive lock-file problem that broke normal `git init`.
 - PDF extraction with page preservation in `app/services/parsing/pdf.py`.
 - Basic API routes under `app/api/routes/`.
 - Starter Streamlit app under `streamlit_app/`.
+- Streamlit ingestion page can upload a PDF or extract the local `CRM Agreements.pdf`, display hash,
+  duplicate status, parser metadata, page count, and page-level extracted text.
 - Phase 1 tests under `tests/`.
 
 ## Important Design Rule
@@ -97,6 +99,14 @@ uv run python scripts/seed_codebook.py
 ```
 
 Result: `Loaded 88 variables from v1.`
+
+Streamlit visible ingestion smoke:
+
+```powershell
+uv run python -c "from pathlib import Path; from app.services.parsing.pdf import extract_pdf_pages; r=extract_pdf_pages(Path('CRM Agreements.pdf')); print(len(r.pages))"
+```
+
+Result: `53`.
 
 Streamlit on this Windows setup should be launched from the project folder with `python -m streamlit`
 rather than the direct `streamlit` console script:
