@@ -9,13 +9,18 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from app.services.ingestion.workspace import pages_to_csv, records_to_json
+from app.services.ingestion.workspace import load_document_records, pages_to_csv, records_to_json
 
 st.title("Agreement Explorer")
-records = st.session_state.get("document_workspace", [])
+records = load_document_records()
+st.session_state.document_workspace = records
+st.caption(
+    "This explorer reads from the prototype SQLite document workspace. "
+    "Validated agreement records will move to PostgreSQL in a later phase."
+)
 
 if not records:
-    st.info("No extracted documents in this browser session. Use New Document Ingestion first.")
+    st.info("No extracted documents in the workspace. Use New Document Ingestion first.")
 else:
     st.metric("Extracted documents", len(records))
     selected_id = st.selectbox(

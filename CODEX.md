@@ -37,6 +37,14 @@ Phase 1B adds a Streamlit session document workspace:
 - workspace data can be downloaded as JSON or page-level CSV;
 - this is session-scoped and ephemeral on Streamlit Cloud until a real database is attached.
 
+Phase 1C adds lightweight SQLite persistence for the Streamlit document workspace:
+
+- extracted document records and page text are saved to `data/processed/document_workspace.sqlite`;
+- if SQLite cannot write in the OneDrive project folder, the app falls back to
+  `%TEMP%/crm_agreement_intelligence/document_workspace.sqlite`;
+- Streamlit Cloud can retain this data only for the current app instance, so JSON/CSV downloads remain
+  the durable handoff until PostgreSQL is connected.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -120,6 +128,8 @@ Result: `4 passed`.
 After adding the Streamlit import-path guard, the test suite result is `5 passed`.
 
 After adding the session document workspace, the test suite result is `6 passed`.
+
+After adding SQLite workspace persistence, the test suite result is `7 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

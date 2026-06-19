@@ -11,6 +11,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from app.core.config import get_settings
 from app.services.codebook import load_codebook
+from app.services.ingestion.workspace import count_document_records
 
 st.set_page_config(page_title="CRM Agreement Intelligence System", layout="wide")
 st.title("CRM Agreement Intelligence System")
@@ -19,7 +20,7 @@ st.caption("Phase 1 foundation")
 settings = get_settings()
 codebook = load_codebook(settings.active_codebook_path)
 local_pdf = Path("CRM Agreements.pdf")
-workspace_count = len(st.session_state.get("document_workspace", []))
+workspace_count = count_document_records()
 
 col_a, col_b, col_c, col_d = st.columns(4)
 col_a.metric("Session documents", workspace_count)

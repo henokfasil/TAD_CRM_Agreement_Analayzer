@@ -15,8 +15,11 @@ from app.core.exceptions import ExtractionError
 from app.services.ingestion.storage import store_upload
 from app.services.ingestion.workspace import (
     build_document_record,
+    clear_document_records,
+    load_document_records,
     pages_to_csv,
     records_to_json,
+    save_document_record,
     upsert_document_record,
 )
 from app.services.parsing.pdf import extract_pdf_pages
@@ -25,7 +28,7 @@ st.title("New Document Ingestion")
 settings = get_settings()
 
 if "document_workspace" not in st.session_state:
-    st.session_state.document_workspace = []
+    st.session_state.document_workspace = load_document_records()
 
 tab_upload, tab_local, tab_workspace = st.tabs(["Upload", "Local PDF", "Workspace"])
 
@@ -50,8 +53,9 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
         return
 
     record = build_document_record(stored, extraction)
+    save_document_record(record)
     st.session_state.document_workspace = upsert_document_record(
-        st.session_state.document_workspace,
+        load_document_records(),
         record,
     )
 
@@ -104,9 +108,14 @@ with tab_local:
         st.info("No `CRM Agreements.pdf` file found in the project root.")
 
 with tab_workspace:
-    records = st.session_state.document_workspace
+    records = load_document_records()
+    st.session_state.document_workspace = records
+    st.caption(
+        "Workspace records are saved in a lightweight SQLite store for this app instance. "
+        "Use downloads for durable research handoff until PostgreSQL is connected."
+    )
     if not records:
-        st.info("No documents have been extracted in this browser session yet.")
+        st.info("No documents have been extracted in this workspace yet.")
     else:
         st.metric("Documents in workspace", len(records))
         st.dataframe(
@@ -151,3 +160,7 @@ with tab_workspace:
             file_name="crm_extracted_pages.csv",
             mime="text/csv",
         )
+        if st.button("Clear workspace"):
+            clear_document_records()
+            st.session_state.document_workspace = []
+            st.rerun()
