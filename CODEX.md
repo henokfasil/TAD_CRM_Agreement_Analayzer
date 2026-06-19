@@ -12,6 +12,10 @@ Phase 1 foundation has been scaffolded in this folder. The repository was initia
 The master prompt has mojibake/encoding artifacts in some punctuation, but its requirements are readable.
 `CRM Agreements.pdf` was smoke-tested with the PDF parser: PyMuPDF extracted 53 pages and page 1 text.
 
+Streamlit Community Cloud deploys from GitHub using `requirements.txt`. Do not commit `uv.lock` from
+the OECD Windows environment because it can capture internal Nexus package URLs that Streamlit Cloud
+cannot resolve.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text

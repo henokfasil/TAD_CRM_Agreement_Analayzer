@@ -12,3 +12,4 @@ data/fixtures/runtime/
 *.db
 *.pdf
 pytest-cache-files-*/
+uv.lock
