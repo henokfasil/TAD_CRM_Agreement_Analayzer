@@ -127,6 +127,84 @@ def run_ai_coding_proposal(
     }
 
 
+def existing_ai_proposal_keys(proposals: list[dict[str, Any]]) -> set[tuple[str, str, str, str, str]]:
+    return {
+        (
+            str(proposal.get("document_id")),
+            str(proposal.get("provision_id")),
+            str(proposal.get("variable_code")),
+            str(proposal.get("model_provider")),
+            str(proposal.get("model_name")),
+        )
+        for proposal in proposals
+    }
+
+
+def run_batch_ai_coding_proposals(
+    document_id: str,
+    provisions: list[dict[str, Any]],
+    variable: CodebookVariableSchema,
+    existing_decisions: list[dict[str, Any]],
+    existing_proposals: list[dict[str, Any]],
+    codebook_version: str,
+    model_registry_path: str | Path = "config/models/model_registry.yaml",
+    model_key: str = "coding_model_v1",
+    limit: int = 5,
+    skip_existing: bool = True,
+) -> dict[str, Any]:
+    registry = load_model_registry(model_registry_path)
+    model_config = resolve_runtime_model_config(get_model_config(registry, model_key))
+    proposal_keys = existing_ai_proposal_keys(existing_proposals)
+    created = []
+    skipped = []
+    errors = []
+
+    for provision in provisions[: max(limit, 0)]:
+        proposal_key = (
+            document_id,
+            provision["provision_id"],
+            variable.code,
+            model_config.provider,
+            model_config.model_name,
+        )
+        if skip_existing and proposal_key in proposal_keys:
+            skipped.append(
+                {
+                    "provision_id": provision["provision_id"],
+                    "reason": "existing_proposal",
+                }
+            )
+            continue
+        try:
+            created.append(
+                run_ai_coding_proposal(
+                    document_id=document_id,
+                    provision=provision,
+                    variable=variable,
+                    existing_decisions=existing_decisions,
+                    codebook_version=codebook_version,
+                    model_registry_path=model_registry_path,
+                    model_key=model_key,
+                )
+            )
+        except Exception as exc:
+            errors.append(
+                {
+                    "provision_id": provision["provision_id"],
+                    "error": str(exc),
+                }
+            )
+            break
+
+    return {
+        "created": created,
+        "skipped": skipped,
+        "errors": errors,
+        "requested_limit": limit,
+        "processed": len(created) + len(skipped) + len(errors),
+    }
+
+
 def save_ai_coding_proposal(
     proposal: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,

@@ -326,6 +326,20 @@ Cloud hotfix after Phase 2G:
 
 After the Admin codebook dataframe hotfix, the test suite result is `26 passed`.
 
+Phase 2H adds capped batch AI proposal generation:
+
+- `app/services/classification/ai_coding.py` now includes `run_batch_ai_coding_proposals` for
+  running one selected variable across multiple candidate provisions;
+- batch runs are capped by the UI and stop after the first provider error to avoid repeated external
+  API failures or runaway spending;
+- existing proposals can be skipped by document, provision, variable, provider, and model name;
+- `Coding Review > AI Proposal` now has `Single provision` and `Batch provisions` run modes;
+- batch outputs are still saved only as pending, unverified AI proposals and must go through
+  verification/adjudication before use as final coding;
+- `tests/unit/test_ai_coding.py` covers skip behavior for existing proposal/model/variable pairs.
+
+After adding capped batch AI proposal generation, the test suite result is `27 passed`.
+
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
 in this workspace unless the project is moved to a normal local filesystem.

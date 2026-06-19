@@ -15,6 +15,7 @@ from app.llm.registry import load_model_registry, resolve_runtime_model_config
 from app.services.classification.ai_coding import (
     ai_proposals_to_csv,
     load_ai_coding_proposals,
+    run_batch_ai_coding_proposals,
     run_ai_coding_proposal,
     save_ai_coding_proposal,
 )
@@ -241,7 +242,13 @@ with tab_ai:
                 variable for variable in variable_options if variable.code == selected_variable_code
             )
 
-            if st.button("Run AI proposal", type="primary"):
+            run_mode = st.radio(
+                "AI run mode",
+                ["Single provision", "Batch provisions"],
+                horizontal=True,
+            )
+
+            if run_mode == "Single provision" and st.button("Run AI proposal", type="primary"):
                 try:
                     proposal = run_ai_coding_proposal(
                         document_id=selected_document["document_id"],
@@ -260,6 +267,66 @@ with tab_ai:
                     st.success("AI proposal saved as pending and unverified.")
                     st.json(proposal)
                     st.rerun()
+
+            if run_mode == "Batch provisions":
+                st.caption(
+                    "Batch proposals are capped and saved as pending. Review, verify, and adjudicate "
+                    "before treating any value as final."
+                )
+                batch_limit = st.slider(
+                    "Maximum candidate provisions to process",
+                    min_value=1,
+                    max_value=min(20, len(provisions)),
+                    value=min(5, len(provisions)),
+                )
+                skip_existing = st.checkbox(
+                    "Skip provisions already proposed with this model and variable",
+                    value=True,
+                )
+                if st.button("Run batch AI proposals", type="primary"):
+                    try:
+                        result = run_batch_ai_coding_proposals(
+                            document_id=selected_document["document_id"],
+                            provisions=provisions,
+                            variable=selected_variable,
+                            existing_decisions=decisions,
+                            existing_proposals=ai_proposals,
+                            codebook_version=codebook.version,
+                            model_key=selected_model_key,
+                            limit=batch_limit,
+                            skip_existing=skip_existing,
+                        )
+                    except ExternalLLMDisabledError as exc:
+                        st.error(str(exc))
+                    except Exception as exc:
+                        st.error(f"Batch AI proposal failed: {exc}")
+                    else:
+                        for proposal in result["created"]:
+                            save_ai_coding_proposal(proposal)
+                        st.success(
+                            f"Saved {len(result['created'])} pending AI proposals; "
+                            f"skipped {len(result['skipped'])}."
+                        )
+                        if result["errors"]:
+                            st.warning("Batch stopped after an error.")
+                            st.json(result["errors"])
+                        if result["created"]:
+                            st.dataframe(
+                                [
+                                    {
+                                        "provision_id": proposal["provision_id"],
+                                        "variable": proposal["variable_code"],
+                                        "value": proposal["proposed_value"],
+                                        "confidence": proposal["confidence"],
+                                        "rule_status": proposal["rule_status"],
+                                    }
+                                    for proposal in result["created"]
+                                ],
+                                use_container_width=True,
+                                hide_index=True,
+                            )
+                        else:
+                            st.info("No new AI proposals were created in this batch.")
 
 with tab_verify:
     st.caption("Verifier outputs are independent checks on AI proposals and still require human review.")
