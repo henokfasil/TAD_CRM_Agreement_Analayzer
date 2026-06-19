@@ -14,21 +14,24 @@ from app.services.reporting.exports import build_candidate_provisions, build_wor
 from app.services.review.manual_coding import load_manual_decisions
 from app.services.agreements.profiles import load_agreement_profiles
 from app.services.classification.ai_coding import load_ai_coding_proposals
+from app.services.verification.ai_verification import load_verification_results
 
 st.title("Dashboard")
 records = load_document_records()
 decisions = load_manual_decisions()
 profiles = load_agreement_profiles()
 ai_proposals = load_ai_coding_proposals()
-summary = build_workspace_summary(records, decisions, profiles, ai_proposals)
+verification_results = load_verification_results()
+summary = build_workspace_summary(records, decisions, profiles, ai_proposals, verification_results)
 
-col_a, col_b, col_c, col_d, col_e, col_f = st.columns(6)
+col_a, col_b, col_c, col_d, col_e, col_f, col_g = st.columns(7)
 col_a.metric("Agreements", summary["agreement_profiles"])
 col_b.metric("Documents", summary["documents"])
 col_c.metric("Pages", summary["pages"])
 col_d.metric("Candidate provisions", summary["candidate_provisions"])
 col_e.metric("Manual decisions", summary["manual_coding_decisions"])
 col_f.metric("AI proposals", summary["ai_coding_proposals"])
+col_g.metric("Verifier results", summary["verification_results"])
 
 st.caption(
     "Dashboard values currently reflect the prototype workspace. "

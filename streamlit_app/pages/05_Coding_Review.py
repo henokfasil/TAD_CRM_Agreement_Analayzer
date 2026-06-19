@@ -27,6 +27,12 @@ from app.services.review.manual_coding import (
 )
 from app.services.review.queue import build_decision_review_queue, build_uncoded_provision_queue
 from app.services.segmentation.basic import segment_document_pages
+from app.services.verification.ai_verification import (
+    load_verification_results,
+    run_mock_verification,
+    save_verification_result,
+    verification_results_to_csv,
+)
 
 st.title("Coding Review")
 st.warning("No AI-generated code is treated as validated until reviewer approval or adjudication.")
@@ -36,9 +42,10 @@ codebook = load_codebook(settings.active_codebook_path)
 records = load_document_records()
 decisions = load_manual_decisions()
 ai_proposals = load_ai_coding_proposals()
+verification_results = load_verification_results()
 
-tab_review, tab_ai, tab_queue, tab_saved = st.tabs(
-    ["Manual Coding", "AI Proposal", "Review Queue", "Saved Decisions"]
+tab_review, tab_ai, tab_verify, tab_queue, tab_saved = st.tabs(
+    ["Manual Coding", "AI Proposal", "Verification", "Review Queue", "Saved Decisions"]
 )
 
 with tab_review:
@@ -218,6 +225,42 @@ with tab_ai:
                 st.json(proposal)
                 st.rerun()
 
+with tab_verify:
+    st.caption("Verifier outputs are independent checks on AI proposals and still require human review.")
+    ai_proposals = load_ai_coding_proposals()
+    if not ai_proposals:
+        st.info("No AI proposals are available to verify.")
+    else:
+        selected_proposal_id = st.selectbox(
+            "AI proposal",
+            [proposal["proposal_id"] for proposal in ai_proposals],
+            format_func=lambda value: next(
+                f"{proposal['variable_code']}={proposal['proposed_value']} | "
+                f"{proposal['model_provider']} | {proposal['rule_status']}"
+                for proposal in ai_proposals
+                if proposal["proposal_id"] == value
+            ),
+        )
+        selected_proposal = next(
+            proposal for proposal in ai_proposals if proposal["proposal_id"] == selected_proposal_id
+        )
+        st.json(
+            {
+                "variable_code": selected_proposal["variable_code"],
+                "proposed_value": selected_proposal["proposed_value"],
+                "confidence": selected_proposal["confidence"],
+                "rule_status": selected_proposal["rule_status"],
+                "evidence_page": selected_proposal["evidence_page"],
+                "evidence_quote": selected_proposal["evidence_quote"],
+            }
+        )
+        if st.button("Run mock verifier", type="primary"):
+            result = run_mock_verification(selected_proposal)
+            save_verification_result(result)
+            st.success("Mock verification result saved.")
+            st.json(result)
+            st.rerun()
+
 with tab_queue:
     all_provisions = []
     for record in records:
@@ -227,15 +270,21 @@ with tab_queue:
     uncoded = build_uncoded_provision_queue(all_provisions, decisions)
     pending = build_decision_review_queue(decisions)
     pending_ai = [proposal for proposal in ai_proposals if proposal["reviewer_status"] == "pending"]
+    unverified_ai = [
+        proposal
+        for proposal in ai_proposals
+        if proposal["proposal_id"] not in {result["proposal_id"] for result in verification_results}
+    ]
 
-    col_q1, col_q2, col_q3 = st.columns(3)
+    col_q1, col_q2, col_q3, col_q4 = st.columns(4)
     col_q1.metric("Uncoded candidate provisions", len(uncoded))
     col_q2.metric("Provisional or uncertain decisions", len(pending))
     col_q3.metric("Pending AI proposals", len(pending_ai))
+    col_q4.metric("Unverified AI proposals", len(unverified_ai))
 
     queue_view = st.radio(
         "Queue view",
-        ["Uncoded provisions", "Pending decisions", "Pending AI proposals"],
+        ["Uncoded provisions", "Pending decisions", "Pending AI proposals", "Unverified AI proposals"],
         horizontal=True,
     )
     if queue_view == "Uncoded provisions":
@@ -260,10 +309,14 @@ with tab_queue:
             st.dataframe(pending, use_container_width=True, hide_index=True)
         elif queue_view == "Pending AI proposals" and pending_ai:
             st.dataframe(pending_ai, use_container_width=True, hide_index=True)
+        elif queue_view == "Unverified AI proposals" and unverified_ai:
+            st.dataframe(unverified_ai, use_container_width=True, hide_index=True)
         elif queue_view == "Pending decisions":
             st.success("No provisional or uncertain manual coding decisions.")
-        else:
+        elif queue_view == "Pending AI proposals":
             st.success("No pending AI proposals.")
+        else:
+            st.success("No unverified AI proposals.")
 
 with tab_saved:
     st.subheader("Saved Manual Decisions")
@@ -288,5 +341,17 @@ with tab_saved:
             "Download AI proposals CSV",
             ai_proposals_to_csv(ai_proposals),
             file_name="crm_ai_coding_proposals.csv",
+            mime="text/csv",
+        )
+    st.subheader("Saved Verification Results")
+    verification_results = load_verification_results()
+    if not verification_results:
+        st.info("No verification results saved yet.")
+    else:
+        st.dataframe(verification_results, use_container_width=True, hide_index=True)
+        st.download_button(
+            "Download verification results CSV",
+            verification_results_to_csv(verification_results),
+            file_name="crm_ai_verification_results.csv",
             mime="text/csv",
         )

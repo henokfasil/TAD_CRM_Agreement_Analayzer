@@ -117,6 +117,16 @@ Phase 2C adds a first AI coding pass using only the mock provider:
 - Dashboard and Reports/Exports include AI proposal counts and CSV export;
 - these are explicitly provisional AI proposals, not validated legal coding.
 
+Phase 2D adds a mock verifier pass:
+
+- `app/services/verification/ai_verification.py` creates independent verification results for AI
+  proposals;
+- verifier checks currently flag missing evidence and unresolved codebook rule conflicts;
+- Coding Review includes a `Verification` tab to run/save verifier results;
+- review queues show unverified AI proposals;
+- Dashboard and Reports/Exports include verifier counts and CSV export;
+- verifier results still require human review and are not adjudicated final values.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -218,6 +228,8 @@ After adding codebook dependency rules, the test suite result is `17 passed`.
 After adding the LLM provider abstraction, the test suite result is `18 passed`.
 
 After adding the mock AI coding proposal pass, the test suite result is `19 passed`.
+
+After adding the mock verifier pass, the test suite result is `20 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
