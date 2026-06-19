@@ -62,6 +62,15 @@ Phase 1E adds a manual coding review prototype:
 - saved manual decisions can be browsed and downloaded as CSV;
 - this is a human-review scaffold, not AI coding or final legal validation.
 
+Phase 1F adds prototype dashboard and export reporting:
+
+- `Dashboard` reads workspace documents, candidate provisions, and manual coding decisions;
+- dashboard metrics show documents, pages, candidate provisions, and manual decisions;
+- reviewer status and coded-variable charts appear once decisions exist;
+- `Reports and Exports` provides JSON/CSV downloads for summary, documents, pages, candidate
+  provisions, and manual coding decisions;
+- exports remain prototype/provisional until validated records and PostgreSQL are connected.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -151,6 +160,8 @@ After adding SQLite workspace persistence, the test suite result is `7 passed`.
 After adding basic provision segmentation, the test suite result is `9 passed`.
 
 After adding manual coding review, the test suite result is `10 passed`.
+
+After adding dashboard/export reporting, the test suite result is `11 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
