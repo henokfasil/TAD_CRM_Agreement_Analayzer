@@ -53,6 +53,15 @@ Phase 1D adds basic candidate provision segmentation:
 - `Agreement Explorer` includes a `Candidate Provisions` tab and CSV export;
 - these are heuristic candidate provisions for review, not validated legal provisions.
 
+Phase 1E adds a manual coding review prototype:
+
+- `Coding Review` loads extracted documents, candidate provisions, and active codebook variables;
+- users can manually assign a proposed value, reviewer status, evidence quote, and reviewer note;
+- decisions are saved in the same lightweight SQLite workspace through
+  `app/services/review/manual_coding.py`;
+- saved manual decisions can be browsed and downloaded as CSV;
+- this is a human-review scaffold, not AI coding or final legal validation.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -140,6 +149,8 @@ After adding the session document workspace, the test suite result is `6 passed`
 After adding SQLite workspace persistence, the test suite result is `7 passed`.
 
 After adding basic provision segmentation, the test suite result is `9 passed`.
+
+After adding manual coding review, the test suite result is `10 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
