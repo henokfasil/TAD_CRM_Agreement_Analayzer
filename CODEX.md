@@ -137,6 +137,41 @@ Phase 2E adds human adjudication:
 - this completes the prototype chain: document -> page -> candidate provision -> manual/AI proposal
   -> verifier result -> human adjudication.
 
+Phase 2F adds gated OpenAI API support:
+
+- `app/llm/providers/openai_compatible.py` implements an OpenAI-compatible Responses API provider
+  using `httpx`;
+- external LLM calls are disabled unless `ALLOW_EXTERNAL_LLM=true` and `OPENAI_API_KEY` are both
+  configured;
+- `OPENAI_BASE_URL` defaults to `https://api.openai.com/v1`, and `OPENAI_MODEL` controls the runtime
+  model name used by OpenAI-backed registry entries;
+- `config/models/model_registry.yaml` keeps `coding_model_v1` on the deterministic mock provider and
+  adds `openai_coding_model` as the real-API option;
+- `Coding Review` now lets the reviewer choose the model configuration before running an AI proposal;
+- `Admin and Codebook` shows whether external LLMs are enabled and whether an API key is configured,
+  without displaying the key;
+- `streamlit_app/runtime_config.py` maps Streamlit Cloud secrets into environment variables before
+  cached settings are loaded.
+
+For Streamlit Cloud, add secrets at the app level rather than committing them:
+
+```toml
+ALLOW_EXTERNAL_LLM = "true"
+OPENAI_API_KEY = "sk-..."
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+OPENAI_MODEL = "gpt-4.1-mini"
+```
+
+Alternatively, grouped secrets are supported by the app:
+
+```toml
+[openai]
+allow_external_llm = "true"
+api_key = "sk-..."
+base_url = "https://api.openai.com/v1"
+model = "gpt-4.1-mini"
+```
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -242,6 +277,8 @@ After adding the mock AI coding proposal pass, the test suite result is `19 pass
 After adding the mock verifier pass, the test suite result is `20 passed`.
 
 After adding human adjudication, the test suite result is `21 passed`.
+
+After adding gated OpenAI API support, the test suite result is `23 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

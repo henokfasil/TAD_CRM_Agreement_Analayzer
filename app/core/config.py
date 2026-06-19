@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     upload_dir: Path = Path("data/raw/uploads")
     max_upload_mb: int = Field(default=50, gt=0)
     active_codebook_path: Path = Path("config/codebooks/active_codebook.yaml")
+    allow_external_llm: bool = False
+    openai_api_key: str | None = None
+    openai_base_url: str = "https://api.openai.com/v1"
+    openai_model: str = "gpt-4.1-mini"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
 
@@ -25,4 +29,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-

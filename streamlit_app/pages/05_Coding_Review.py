@@ -10,6 +10,8 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
+from app.llm.providers.openai_compatible import ExternalLLMDisabledError
+from app.llm.registry import load_model_registry, resolve_runtime_model_config
 from app.services.classification.ai_coding import (
     ai_proposals_to_csv,
     load_ai_coding_proposals,
@@ -33,12 +35,15 @@ from app.services.verification.ai_verification import (
     save_verification_result,
     verification_results_to_csv,
 )
+from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 
 st.title("Coding Review")
 st.warning("No AI-generated code is treated as validated until reviewer approval or adjudication.")
 
+sync_streamlit_secrets_to_env()
 settings = get_settings()
 codebook = load_codebook(settings.active_codebook_path)
+model_registry = load_model_registry("config/models/model_registry.yaml")
 records = load_document_records()
 decisions = load_manual_decisions()
 ai_proposals = load_ai_coding_proposals()
@@ -159,10 +164,26 @@ with tab_review:
                 st.rerun()
 
 with tab_ai:
-    st.caption(
-        "This prototype uses the deterministic mock provider only. "
-        "AI outputs are saved as provisional proposals requiring review."
+    st.caption("AI outputs are saved as provisional proposals requiring review.")
+    model_options = list(model_registry.models.keys())
+    selected_model_key = st.selectbox(
+        "AI model configuration",
+        model_options,
+        format_func=lambda key: (
+            f"{key} | "
+            f"{resolve_runtime_model_config(model_registry.models[key]).provider} | "
+            f"{resolve_runtime_model_config(model_registry.models[key]).model_name}"
+        ),
     )
+    selected_model_config = resolve_runtime_model_config(model_registry.models[selected_model_key])
+    if selected_model_config.provider == "openai_compatible":
+        if settings.allow_external_llm and settings.openai_api_key:
+            st.success("OpenAI calls are enabled for this session.")
+        else:
+            st.warning(
+                "OpenAI is configured in the registry but disabled until "
+                "ALLOW_EXTERNAL_LLM=true and OPENAI_API_KEY are set."
+            )
     if not records:
         st.info("No extracted documents are available. Use New Document Ingestion first.")
     else:
@@ -212,18 +233,25 @@ with tab_ai:
                 variable for variable in variable_options if variable.code == selected_variable_code
             )
 
-            if st.button("Run mock AI proposal", type="primary"):
-                proposal = run_ai_coding_proposal(
-                    document_id=selected_document["document_id"],
-                    provision=selected_provision,
-                    variable=selected_variable,
-                    existing_decisions=decisions,
-                    codebook_version=codebook.version,
-                )
-                save_ai_coding_proposal(proposal)
-                st.success("Mock AI proposal saved as pending and unverified.")
-                st.json(proposal)
-                st.rerun()
+            if st.button("Run AI proposal", type="primary"):
+                try:
+                    proposal = run_ai_coding_proposal(
+                        document_id=selected_document["document_id"],
+                        provision=selected_provision,
+                        variable=selected_variable,
+                        existing_decisions=decisions,
+                        codebook_version=codebook.version,
+                        model_key=selected_model_key,
+                    )
+                except ExternalLLMDisabledError as exc:
+                    st.error(str(exc))
+                except Exception as exc:
+                    st.error(f"AI proposal failed: {exc}")
+                else:
+                    save_ai_coding_proposal(proposal)
+                    st.success("AI proposal saved as pending and unverified.")
+                    st.json(proposal)
+                    st.rerun()
 
 with tab_verify:
     st.caption("Verifier outputs are independent checks on AI proposals and still require human review.")

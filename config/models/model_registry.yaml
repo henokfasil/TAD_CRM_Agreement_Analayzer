@@ -4,3 +4,8 @@ models:
     model_name: mock-coding-v1
     temperature: 0
     purpose: structured coding prototype
+  openai_coding_model:
+    provider: openai_compatible
+    model_name: gpt-4.1-mini
+    temperature: 0
+    purpose: external structured coding with OpenAI Responses API

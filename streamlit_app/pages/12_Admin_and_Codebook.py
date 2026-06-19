@@ -10,11 +10,13 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.core.config import get_settings
-from app.llm.registry import load_model_registry
+from app.llm.registry import load_model_registry, resolve_runtime_model_config
 from app.services.codebook import load_codebook
 from app.services.storage.schema import get_schema_status, initialize_application_schema
+from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 
 st.title("Admin and Codebook")
+sync_streamlit_secrets_to_env()
 settings = get_settings()
 codebook = load_codebook(settings.active_codebook_path)
 model_registry = load_model_registry("config/models/model_registry.yaml")
@@ -26,10 +28,18 @@ with tab_codebook:
     st.dataframe([variable.model_dump() for variable in codebook.variables], use_container_width=True)
 
 with tab_models:
-    st.caption("The current prototype uses a deterministic mock provider. It does not call external AI.")
+    st.caption("External LLM calls require explicit environment/secrets configuration.")
+    st.json(
+        {
+            "allow_external_llm": settings.allow_external_llm,
+            "openai_api_key_configured": bool(settings.openai_api_key),
+            "openai_base_url": settings.openai_base_url,
+            "openai_model": settings.openai_model,
+        }
+    )
     st.dataframe(
         [
-            {"key": key, **config.model_dump()}
+            {"key": key, **resolve_runtime_model_config(config).model_dump()}
             for key, config in model_registry.models.items()
         ],
         use_container_width=True,

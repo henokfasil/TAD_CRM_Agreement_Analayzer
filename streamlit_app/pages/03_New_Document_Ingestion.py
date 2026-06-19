@@ -23,8 +23,10 @@ from app.services.ingestion.workspace import (
     upsert_document_record,
 )
 from app.services.parsing.pdf import extract_pdf_pages
+from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 
 st.title("New Document Ingestion")
+sync_streamlit_secrets_to_env()
 settings = get_settings()
 
 if "document_workspace" not in st.session_state:

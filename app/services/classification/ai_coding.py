@@ -7,7 +7,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from app.llm.registry import build_provider, get_model_config, load_model_registry
+from app.llm.registry import (
+    build_provider,
+    get_model_config,
+    load_model_registry,
+    resolve_runtime_model_config,
+)
 from app.schemas.codebook import CodebookVariableSchema
 from app.schemas.llm import LLMMessage, LLMRequest
 from app.services.classification.rules import evaluate_dependency_rules
@@ -88,7 +93,7 @@ def run_ai_coding_proposal(
     model_key: str = "coding_model_v1",
 ) -> dict[str, Any]:
     registry = load_model_registry(model_registry_path)
-    model_config = get_model_config(registry, model_key)
+    model_config = resolve_runtime_model_config(get_model_config(registry, model_key))
     provider = build_provider(model_config)
     request = build_ai_coding_request(provision, variable, model_config.model_name)
     response = provider.complete(request)
@@ -213,4 +218,3 @@ def ai_proposals_to_csv(proposals: list[dict[str, Any]]) -> str:
     for proposal in proposals:
         writer.writerow({field: proposal.get(field) for field in fieldnames})
     return output.getvalue()
-

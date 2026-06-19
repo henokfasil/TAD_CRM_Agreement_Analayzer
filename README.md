@@ -26,7 +26,20 @@ uv run uvicorn app.main:app --reload
 uv run streamlit run streamlit_app/Home.py
 ```
 
+## Optional OpenAI API Use
+
+The app defaults to a deterministic mock provider. To use OpenAI for the AI proposal tab, configure
+these values in `.env` locally or Streamlit Cloud secrets:
+
+```toml
+ALLOW_EXTERNAL_LLM = "true"
+OPENAI_API_KEY = "sk-..."
+OPENAI_BASE_URL = "https://api.openai.com/v1"
+OPENAI_MODEL = "gpt-4.1-mini"
+```
+
+Never commit a real API key.
+
 ## Phase Discipline
 
 See `CODEX.md` for the current implementation state and continuation instructions.
-
