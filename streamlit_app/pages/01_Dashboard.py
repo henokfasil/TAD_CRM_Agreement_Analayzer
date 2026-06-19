@@ -12,17 +12,20 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.services.ingestion.workspace import load_document_records
 from app.services.reporting.exports import build_candidate_provisions, build_workspace_summary
 from app.services.review.manual_coding import load_manual_decisions
+from app.services.agreements.profiles import load_agreement_profiles
 
 st.title("Dashboard")
 records = load_document_records()
 decisions = load_manual_decisions()
-summary = build_workspace_summary(records, decisions)
+profiles = load_agreement_profiles()
+summary = build_workspace_summary(records, decisions, profiles)
 
-col_a, col_b, col_c, col_d = st.columns(4)
-col_a.metric("Documents", summary["documents"])
-col_b.metric("Pages", summary["pages"])
-col_c.metric("Candidate provisions", summary["candidate_provisions"])
-col_d.metric("Manual decisions", summary["manual_coding_decisions"])
+col_a, col_b, col_c, col_d, col_e = st.columns(5)
+col_a.metric("Agreements", summary["agreement_profiles"])
+col_b.metric("Documents", summary["documents"])
+col_c.metric("Pages", summary["pages"])
+col_d.metric("Candidate provisions", summary["candidate_provisions"])
+col_e.metric("Manual decisions", summary["manual_coding_decisions"])
 
 st.caption(
     "Dashboard values currently reflect the prototype workspace. "

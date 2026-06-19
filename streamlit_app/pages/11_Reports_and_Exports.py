@@ -12,26 +12,30 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.services.ingestion.workspace import load_document_records
 from app.services.reporting.exports import build_research_export_bundle, build_workspace_summary
 from app.services.review.manual_coding import load_manual_decisions
+from app.services.agreements.profiles import load_agreement_profiles
 
 st.title("Reports and Exports")
 records = load_document_records()
 decisions = load_manual_decisions()
-summary = build_workspace_summary(records, decisions)
-bundle = build_research_export_bundle(records, decisions)
+profiles = load_agreement_profiles()
+summary = build_workspace_summary(records, decisions, profiles)
+bundle = build_research_export_bundle(records, decisions, profiles)
 
 st.caption(
     "These exports are prototype workspace outputs. They distinguish manual/provisional review data "
     "from future validated research datasets."
 )
 
-col_a, col_b, col_c = st.columns(3)
-col_a.metric("Documents", summary["documents"])
-col_b.metric("Candidate provisions", summary["candidate_provisions"])
-col_c.metric("Manual decisions", summary["manual_coding_decisions"])
+col_a, col_b, col_c, col_d = st.columns(4)
+col_a.metric("Agreements", summary["agreement_profiles"])
+col_b.metric("Documents", summary["documents"])
+col_c.metric("Candidate provisions", summary["candidate_provisions"])
+col_d.metric("Manual decisions", summary["manual_coding_decisions"])
 
 st.subheader("Downloads")
 downloads = [
     ("Workspace summary JSON", "crm_workspace_summary.json", bundle["summary_json"], "application/json"),
+    ("Agreement profiles CSV", "crm_agreement_profiles.csv", bundle["agreement_profiles_csv"], "text/csv"),
     ("Documents JSON", "crm_documents.json", bundle["documents_json"], "application/json"),
     ("Extracted pages CSV", "crm_extracted_pages.csv", bundle["pages_csv"], "text/csv"),
     (

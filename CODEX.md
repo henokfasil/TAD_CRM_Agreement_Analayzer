@@ -71,6 +71,15 @@ Phase 1F adds prototype dashboard and export reporting:
   provisions, and manual coding decisions;
 - exports remain prototype/provisional until validated records and PostgreSQL are connected.
 
+Phase 1G adds agreement profiles and a review queue:
+
+- `app/services/agreements/profiles.py` stores lightweight agreement profiles in SQLite;
+- `Agreement Explorer` now has tabs for profile creation and document/provision browsing;
+- extracted documents can be linked to saved agreement profiles;
+- `Coding Review` now has `Manual Coding`, `Review Queue`, and `Saved Decisions` tabs;
+- the review queue separates uncoded candidate provisions from provisional/uncertain decisions;
+- dashboard and export bundles now include agreement profile counts and profile CSV export.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -162,6 +171,8 @@ After adding basic provision segmentation, the test suite result is `9 passed`.
 After adding manual coding review, the test suite result is `10 passed`.
 
 After adding dashboard/export reporting, the test suite result is `11 passed`.
+
+After adding agreement profiles and review queue, the test suite result is `13 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal

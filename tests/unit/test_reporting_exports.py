@@ -38,11 +38,14 @@ def test_reporting_bundle_contains_workspace_outputs() -> None:
         }
     ]
 
-    summary = build_workspace_summary(records, decisions)
-    bundle = build_research_export_bundle(records, decisions)
+    profiles = [{"agreement_id": "a1", "canonical_title": "Critical Minerals Partnership"}]
+    summary = build_workspace_summary(records, decisions, profiles)
+    bundle = build_research_export_bundle(records, decisions, profiles)
 
+    assert summary["agreement_profiles"] == 1
     assert summary["documents"] == 1
     assert summary["manual_coding_decisions"] == 1
     assert len(build_candidate_provisions(records)) == 1
     assert "mech_work_group" in bundle["manual_decisions_csv"]
+    assert "Critical Minerals Partnership" in bundle["agreement_profiles_csv"]
     assert "candidate_provisions" in bundle["summary_json"]
