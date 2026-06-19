@@ -45,6 +45,14 @@ Phase 1C adds lightweight SQLite persistence for the Streamlit document workspac
 - Streamlit Cloud can retain this data only for the current app instance, so JSON/CSV downloads remain
   the durable handoff until PostgreSQL is connected.
 
+Phase 1D adds basic candidate provision segmentation:
+
+- `app/services/segmentation/basic.py` detects simple article/section headings and paragraph blocks;
+- every candidate segment keeps document id, page number, article/section metadata where available,
+  segmentation method, and segmentation version;
+- `Agreement Explorer` includes a `Candidate Provisions` tab and CSV export;
+- these are heuristic candidate provisions for review, not validated legal provisions.
+
 Git is initialized locally using a separate metadata directory outside OneDrive:
 
 ```text
@@ -130,6 +138,8 @@ After adding the Streamlit import-path guard, the test suite result is `5 passed
 After adding the session document workspace, the test suite result is `6 passed`.
 
 After adding SQLite workspace persistence, the test suite result is `7 passed`.
+
+After adding basic provision segmentation, the test suite result is `9 passed`.
 
 `python -m compileall app streamlit_app tests` can fail locally in the OneDrive folder with
 `PermissionError` while writing `__pycache__` files. Treat pytest as the reliable validation signal
