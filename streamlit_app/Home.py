@@ -33,9 +33,15 @@ def render_home() -> None:
     st.markdown(
         """
         <section class="crm-hero">
-            <div class="crm-kicker">Critical raw materials agreements</div>
-            <h1>From source documents to defensible evidence.</h1>
-            <p>Collect, structure, code, verify, and compare international CRM agreements in one transparent human-in-the-loop research workspace.</p>
+            <div>
+                <div class="crm-kicker">Critical raw materials agreements</div>
+                <h1>Turn agreements into trusted research.</h1>
+                <p>A calm workspace for reading complex agreements, finding the provisions that matter, and building evidence you can defend.</p>
+            </div>
+            <div class="crm-paper-stack" aria-hidden="true">
+                <div class="crm-paper-back"></div>
+                <div class="crm-paper"></div>
+            </div>
         </section>
         """,
         unsafe_allow_html=True,
@@ -47,18 +53,18 @@ def render_home() -> None:
     col_c.metric("Review model", "Human-in-the-loop")
     col_d.metric("Codebook variables", len(codebook.variables))
 
-    st.subheader("Research workflow")
-    st.caption("Follow the numbered pages in the sidebar, or start directly with a document.")
-    col_1, col_2, col_3 = st.columns(3)
-    with col_1:
-        st.markdown("#### 1–2 · Find and ingest")
-        st.write("Register official sources, upload PDFs, and recover scanned text with local OCR.")
-    with col_2:
-        st.markdown("#### 3–5 · Structure and decide")
-        st.write("Review provisions, create coding proposals, verify evidence, and adjudicate.")
-    with col_3:
-        st.markdown("#### 6 · Analyse and export")
-        st.write("Compare validated results, inspect relationships, and export research datasets.")
+    st.markdown('<div class="crm-section-title">A document becomes evidence in three movements</div>', unsafe_allow_html=True)
+    st.markdown('<div class="crm-section-note">The numbered sidebar keeps the detailed steps in order.</div>', unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="crm-flow">
+            <div class="crm-flow-card"><span class="crm-flow-number">1</span><h3>Bring the source in</h3><p>Upload the official PDF. OCR quietly recovers text from scanned pages.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">2</span><h3>Read, code, and challenge</h3><p>Review provisions, propose codebook values, and test every claim against evidence.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">3</span><h3>Decide and compare</h3><p>Adjudicate uncertain results, then compare agreements and export defensible data.</p></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     if st.button("Start with a document", type="primary", use_container_width=True):
         st.switch_page("pages/03_New_Document_Ingestion.py")

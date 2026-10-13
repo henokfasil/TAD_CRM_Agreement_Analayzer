@@ -40,6 +40,24 @@ from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 from streamlit_app.ui import page_header
 
 page_header("Code and verify", "Apply the research codebook, generate provisional AI proposals, and independently verify their evidence.", eyebrow="Step 4 of 6")
+with st.expander("What happens in this step?", expanded=True):
+    col_explain_1, col_explain_2, col_explain_3 = st.columns(3)
+    with col_explain_1:
+        st.markdown("#### 1 · Choose what to code")
+        st.write(
+            "Select a candidate provision and the codebook variable you want to assess."
+        )
+    with col_explain_2:
+        st.markdown("#### 2 · Make a proposal")
+        st.write(
+            "Record a value manually or let the configured AI propose one with an evidence quote."
+        )
+    with col_explain_3:
+        st.markdown("#### 3 · Challenge the result")
+        st.write(
+            "The prototype verifier flags missing evidence and codebook-rule conflicts. "
+            "A human still decides what is valid."
+        )
 st.warning("No AI-generated code is treated as validated until reviewer approval or adjudication.")
 
 sync_streamlit_secrets_to_env()
