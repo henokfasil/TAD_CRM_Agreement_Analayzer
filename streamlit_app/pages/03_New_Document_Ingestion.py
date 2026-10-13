@@ -23,6 +23,7 @@ from app.services.ingestion.workspace import (
     upsert_document_record,
 )
 from app.services.parsing.pdf import extract_pdf_pages
+from app.services.segmentation.basic import segment_document_pages
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 
 st.title("New Document Ingestion")
@@ -61,10 +62,39 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
         record,
     )
 
-    st.subheader("Page-Level Extraction")
-    col_method, col_pages = st.columns(2)
+    text_pages = sum(bool(page.text.strip()) for page in extraction.pages)
+    text_characters = sum(len(page.text.strip()) for page in extraction.pages)
+    provisions = segment_document_pages(record)
+
+    st.subheader("Extraction results")
+    col_method, col_pages, col_text, col_provisions = st.columns(4)
     col_method.metric("Parser", extraction.method)
     col_pages.metric("Pages", len(extraction.pages))
+    col_text.metric("Pages with text", f"{text_pages}/{len(extraction.pages)}")
+    col_provisions.metric("Candidate provisions", len(provisions))
+
+    if extraction.ocr_page_count:
+        st.success(
+            f"OCR recovered text from {extraction.ocr_page_count} scanned "
+            f"page{'s' if extraction.ocr_page_count != 1 else ''}."
+        )
+    if extraction.ocr_warning:
+        st.warning(extraction.ocr_warning)
+    if not text_characters:
+        st.error(
+            "No readable text was extracted. This document cannot proceed to coding yet. "
+            "Try an OCR-readable copy or ask an administrator to verify Tesseract installation."
+        )
+    elif not provisions:
+        st.warning(
+            "Text was extracted, but no candidate provisions were detected. Review the extracted "
+            "pages before continuing."
+        )
+    else:
+        st.success(
+            "The document is ready. Review its pages and candidate provisions, then continue to "
+            "coding."
+        )
 
     page_numbers = [page.page_number for page in extraction.pages]
     selected_page_number = st.selectbox("Page", page_numbers)
@@ -84,10 +114,21 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
                 "sha256_hash": stored.sha256_hash,
                 "parser_version": extraction.parser_version,
                 "page_count": len(extraction.pages),
+                "ocr_attempted": extraction.ocr_attempted,
+                "ocr_page_count": extraction.ocr_page_count,
             }
         )
 
-    st.caption("This document is now available in the Workspace tab and Agreement Explorer.")
+    st.divider()
+    st.subheader("Next step")
+    if provisions:
+        st.write("Open the agreement, inspect the candidate provisions, and continue to coding.")
+        if st.button("Next: Review agreement", type="primary", use_container_width=True):
+            st.switch_page("pages/02_Agreement_Explorer.py")
+    else:
+        st.write("Review the extracted pages to diagnose why no candidate provisions were found.")
+        if st.button("Next: Inspect extracted pages", type="primary", use_container_width=True):
+            st.switch_page("pages/02_Agreement_Explorer.py")
 
 
 with tab_upload:

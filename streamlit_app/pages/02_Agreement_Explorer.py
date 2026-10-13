@@ -30,7 +30,7 @@ st.caption(
     "Validated agreement records will move to PostgreSQL in a later phase."
 )
 
-tab_profiles, tab_documents = st.tabs(["Agreement Profiles", "Documents and Provisions"])
+tab_documents, tab_profiles = st.tabs(["Documents and Provisions", "Agreement Profiles"])
 
 with tab_profiles:
     st.subheader("Create Agreement Profile")
@@ -176,7 +176,31 @@ with tab_documents:
                     mime="text/csv",
                 )
             else:
-                st.info("No candidate provisions were detected for this document.")
+                extracted_characters = sum(len(page["text"].strip()) for page in selected["pages"])
+                if not extracted_characters:
+                    st.error(
+                        "No readable text was extracted from this PDF. It may be scanned. "
+                        "Re-upload it after OCR support is deployed, or use an OCR-readable copy."
+                    )
+                else:
+                    st.warning(
+                        "Text was extracted, but no candidate provisions were detected. "
+                        "Inspect the Pages tab before trying another document."
+                    )
+
+        if provisions:
+            st.divider()
+            st.subheader("Next step")
+            st.write(
+                "Inspect the candidate provisions above, then continue to Coding Review to "
+                "create manual or AI-assisted proposals."
+            )
+            if st.button(
+                "Next: Start coding review",
+                type="primary",
+                use_container_width=True,
+            ):
+                st.switch_page("pages/05_Coding_Review.py")
 
         with st.expander("Document provenance"):
             st.json(

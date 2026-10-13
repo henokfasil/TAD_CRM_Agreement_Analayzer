@@ -23,8 +23,10 @@ class ExtractionResult(BaseModel):
     method: str
     parser_version: str
     pages: list[ExtractedPage]
+    ocr_attempted: bool = False
+    ocr_page_count: int = 0
+    ocr_warning: str | None = None
 
     @property
     def full_text(self) -> str:
         return "\n\n".join(page.text for page in self.pages)
-
