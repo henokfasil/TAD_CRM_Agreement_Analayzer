@@ -92,3 +92,16 @@ with tab_saved:
             file_name="crm_adjudication_decisions.csv",
             mime="text/csv",
         )
+
+st.divider()
+st.subheader("Continue the workflow")
+st.caption(
+    "Return to coding if evidence needs revision, or continue with validated decisions to comparison."
+)
+col_previous, col_next = st.columns(2)
+with col_previous:
+    if st.button("Previous: Code & verify", use_container_width=True):
+        st.switch_page("pages/05_Coding_Review.py")
+with col_next:
+    if st.button("Next: Compare agreements", type="primary", use_container_width=True):
+        st.switch_page("pages/07_Comparison_Tool.py")

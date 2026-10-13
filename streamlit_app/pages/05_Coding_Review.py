@@ -481,3 +481,16 @@ with tab_saved:
             file_name="crm_ai_verification_results.csv",
             mime="text/csv",
         )
+
+st.divider()
+st.subheader("Continue the workflow")
+st.caption(
+    "When the coding and evidence checks are ready, continue to adjudication for the final human decision."
+)
+col_previous, col_next = st.columns(2)
+with col_previous:
+    if st.button("Previous: Review & structure", use_container_width=True):
+        st.switch_page("pages/02_Agreement_Explorer.py")
+with col_next:
+    if st.button("Next: Adjudicate", type="primary", use_container_width=True):
+        st.switch_page("pages/06_Adjudication.py")
