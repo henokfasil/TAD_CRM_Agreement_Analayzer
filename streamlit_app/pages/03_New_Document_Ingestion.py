@@ -25,8 +25,9 @@ from app.services.ingestion.workspace import (
 from app.services.parsing.pdf import extract_pdf_pages
 from app.services.segmentation.basic import segment_document_pages
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
+from streamlit_app.ui import page_header
 
-st.title("New Document Ingestion")
+page_header("Ingest documents", "Upload source agreements, recover scanned text with OCR, and verify extraction quality before review.", eyebrow="Step 2 of 6")
 sync_streamlit_secrets_to_env()
 settings = get_settings()
 

@@ -20,8 +20,9 @@ from app.llm.registry import (
 from app.services.codebook import load_codebook
 from app.services.storage.schema import get_schema_status, initialize_application_schema
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
+from streamlit_app.ui import page_header
 
-st.title("Admin and Codebook")
+page_header("Codebook and settings", "Inspect the active ontology, model configuration, and prototype storage health.", eyebrow="Administration")
 sync_streamlit_secrets_to_env()
 settings = get_settings()
 codebook = load_codebook(settings.active_codebook_path)

@@ -17,8 +17,9 @@ from app.services.review.adjudication import (
     save_adjudication_decision,
 )
 from app.services.review.manual_coding import load_manual_decisions
+from streamlit_app.ui import page_header
 
-st.title("Adjudication")
+page_header("Adjudicate", "Resolve provisional or conflicting coding into a documented human decision with rationale.", eyebrow="Step 5 of 6")
 st.caption(
     "Adjudication creates final prototype decisions while preserving the original manual decision "
     "or AI proposal as the source record."

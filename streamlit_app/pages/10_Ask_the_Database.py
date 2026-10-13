@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import streamlit as st
+from streamlit_app.ui import page_header
 
-st.title("Ask the Database")
-st.write("Semantic QA with citations is planned after validated data and embeddings exist.")
-
+page_header("Ask the database", "Query the validated agreement corpus in plain language with evidence-linked answers.", eyebrow="Research assistant")
+st.info("Semantic questions with citations will be enabled after validated data and embeddings exist.")

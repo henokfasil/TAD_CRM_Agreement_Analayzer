@@ -19,8 +19,9 @@ from app.services.agreements.profiles import (
 )
 from app.services.ingestion.workspace import load_document_records, pages_to_csv, records_to_json
 from app.services.segmentation.basic import segment_document_pages, provisions_to_csv
+from streamlit_app.ui import page_header
 
-st.title("Agreement Explorer")
+page_header("Review and structure", "Inspect extracted pages, check candidate provisions, and connect documents to agreement profiles.", eyebrow="Step 3 of 6")
 records = load_document_records()
 profiles = load_agreement_profiles()
 links = load_agreement_document_links()

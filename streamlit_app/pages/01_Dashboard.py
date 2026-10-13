@@ -16,8 +16,9 @@ from app.services.agreements.profiles import load_agreement_profiles
 from app.services.classification.ai_coding import load_ai_coding_proposals
 from app.services.review.adjudication import load_adjudication_decisions
 from app.services.verification.ai_verification import load_verification_results
+from streamlit_app.ui import page_header
 
-st.title("Dashboard")
+page_header("Dashboard", "A live view of documents, coding activity, verification, and final decisions.", eyebrow="Overview")
 records = load_document_records()
 decisions = load_manual_decisions()
 profiles = load_agreement_profiles()

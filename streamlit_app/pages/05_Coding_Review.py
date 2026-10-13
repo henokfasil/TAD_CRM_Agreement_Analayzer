@@ -37,8 +37,9 @@ from app.services.verification.ai_verification import (
     verification_results_to_csv,
 )
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
+from streamlit_app.ui import page_header
 
-st.title("Coding Review")
+page_header("Code and verify", "Apply the research codebook, generate provisional AI proposals, and independently verify their evidence.", eyebrow="Step 4 of 6")
 st.warning("No AI-generated code is treated as validated until reviewer approval or adjudication.")
 
 sync_streamlit_secrets_to_env()
