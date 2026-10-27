@@ -13,7 +13,7 @@ from app.core.config import get_settings
 from app.services.codebook import load_codebook
 from app.services.ingestion.workspace import count_document_records
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
-from streamlit_app.ui import apply_app_style
+from streamlit_app.ui import apply_app_style, stat_cards
 
 st.set_page_config(
     page_title="CRM Agreement Intelligence",
@@ -52,11 +52,14 @@ def render_home() -> None:
         unsafe_allow_html=True,
     )
 
-    col_a, col_b, col_c, col_d = st.columns(4)
-    col_a.metric("Saved agreements", workspace_count)
-    col_b.metric("Workflow stage", "Research prototype")
-    col_c.metric("Review model", "Human-in-the-loop")
-    col_d.metric("Codebook variables", len(codebook.variables))
+    stat_cards(
+        [
+            ("Saved agreements", workspace_count, "Persisted source documents"),
+            ("Workflow", "6 steps", "From discovery to comparison"),
+            ("Review model", "Human-led", "AI suggestions remain provisional"),
+            ("Research variables", len(codebook.variables), "Defined in the active codebook"),
+        ]
+    )
 
     st.markdown('<div class="crm-section-title">A document becomes evidence in three movements</div>', unsafe_allow_html=True)
     st.markdown('<div class="crm-section-note">The numbered sidebar keeps the detailed steps in order.</div>', unsafe_allow_html=True)

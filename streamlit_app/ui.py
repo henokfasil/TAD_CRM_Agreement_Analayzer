@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from html import escape
+from typing import Iterable
 
 import streamlit as st
 
@@ -74,9 +75,34 @@ def apply_app_style() -> None:
         .crm-summary-grid span { display:block; margin-bottom:.24rem; color:var(--crm-muted); font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; }
         .crm-summary-grid strong { display:block; color:var(--crm-forest); font-size:.96rem; font-weight:700; white-space:normal; overflow-wrap:anywhere; }
         .crm-preview-title { margin:1.8rem 0 .25rem; font-family:Georgia,serif; font-size:1.45rem; color:var(--crm-forest); }
+        .crm-stat-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.85rem; margin:1.25rem 0 1.8rem; }
+        .crm-stat-card { position:relative; min-width:0; padding:1.15rem 1.2rem 1.1rem; overflow:hidden; background:rgba(255,253,248,.92); border:1px solid var(--crm-border); border-radius:18px; box-shadow:0 8px 24px rgba(74,57,39,.045); }
+        .crm-stat-card::before { content:""; position:absolute; inset:0 auto 0 0; width:4px; background:var(--crm-sage); }
+        .crm-stat-card:nth-child(2)::before { background:var(--crm-clay); }
+        .crm-stat-card:nth-child(3)::before { background:var(--crm-ochre); }
+        .crm-stat-card:nth-child(4)::before { background:#7896a7; }
+        .crm-stat-label { color:var(--crm-muted); font-size:.73rem; font-weight:700; letter-spacing:.055em; text-transform:uppercase; }
+        .crm-stat-value { margin:.35rem 0 .25rem; color:var(--crm-forest); font-family:Georgia,serif; font-size:clamp(1.65rem,2.7vw,2.35rem); font-weight:650; line-height:1.05; overflow-wrap:anywhere; }
+        .crm-stat-note { color:var(--crm-muted); font-size:.78rem; line-height:1.35; }
+        .crm-dashboard-section { margin:1.5rem 0 .55rem; }
+        .crm-dashboard-section h2 { margin:0; font-family:Georgia,serif; font-size:1.65rem; font-weight:600; }
+        .crm-dashboard-section p { margin:.3rem 0 0; color:var(--crm-muted); font-size:.9rem; }
+        .crm-bar-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin:1rem 0 1.5rem; }
+        .crm-bar-panel { min-width:0; padding:1.25rem; background:var(--crm-paper); border:1px solid var(--crm-border); border-radius:20px; box-shadow:0 8px 22px rgba(74,57,39,.045); }
+        .crm-bar-panel h3 { margin:0 0 .25rem; font-family:Georgia,serif; font-size:1.12rem; }
+        .crm-bar-panel > p { margin:0 0 1rem; color:var(--crm-muted); font-size:.8rem; }
+        .crm-bar-row { display:grid; grid-template-columns:minmax(90px,1fr) 3fr auto; gap:.7rem; align-items:center; margin:.72rem 0; }
+        .crm-bar-label { min-width:0; color:var(--crm-ink); font-size:.82rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .crm-bar-track { height:9px; overflow:hidden; background:#eee5d8; border-radius:999px; }
+        .crm-bar-fill { display:block; height:100%; min-width:7px; background:linear-gradient(90deg,var(--crm-sage),var(--crm-forest)); border-radius:999px; }
+        .crm-bar-value { color:var(--crm-forest); font-family:Georgia,serif; font-weight:700; }
+        .crm-empty-state { padding:1rem; color:var(--crm-muted); background:#f7f0e6; border-radius:12px; font-size:.84rem; }
         @media (max-width:800px) { .crm-hero { grid-template-columns:1fr; } .crm-paper-stack { display:none; } .crm-flow { grid-template-columns:1fr; } }
         @media (max-width:900px) { .crm-summary-grid { grid-template-columns:repeat(2,1fr); gap:.85rem; } .crm-summary-grid > div, .crm-summary-grid > div:first-child { padding:.2rem 0; border-right:0; } }
+        @media (max-width:1050px) { .crm-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        @media (max-width:700px) { .crm-bar-grid { grid-template-columns:1fr; } }
         @media (max-width:560px) { .crm-result-panel { padding:1rem; border-radius:16px; } .crm-result-heading { grid-template-columns:auto minmax(0,1fr); } .crm-status-pill { grid-column:2; justify-self:start; } }
+        @media (max-width:520px) { .crm-stat-grid { grid-template-columns:1fr; } }
         </style>
         """,
         unsafe_allow_html=True,
@@ -87,6 +113,44 @@ def page_header(title: str, description: str, *, eyebrow: str = "Research worksp
     st.markdown(
         f'<div class="crm-header"><div class="crm-eyebrow">{escape(eyebrow)}</div><h1>{escape(title)}</h1><p>{escape(description)}</p></div>',
         unsafe_allow_html=True,
+    )
+
+
+def stat_cards(items: Iterable[tuple[str, object, str]]) -> None:
+    """Render responsive dashboard indicators without truncated metric widgets."""
+    cards = "".join(
+        (
+            '<article class="crm-stat-card">'
+            f'<div class="crm-stat-label">{escape(str(label))}</div>'
+            f'<div class="crm-stat-value">{escape(str(value))}</div>'
+            f'<div class="crm-stat-note">{escape(note)}</div>'
+            "</article>"
+        )
+        for label, value, note in items
+    )
+    st.markdown(f'<section class="crm-stat-grid">{cards}</section>', unsafe_allow_html=True)
+
+
+def bar_panel(title: str, description: str, values: dict[str, int]) -> str:
+    """Build one accessible compact horizontal-bar panel."""
+    if not values:
+        rows = '<div class="crm-empty-state">No reviewed classifications yet.</div>'
+    else:
+        maximum = max(values.values()) or 1
+        rows = "".join(
+            (
+                '<div class="crm-bar-row">'
+                f'<span class="crm-bar-label" title="{escape(str(label))}">{escape(str(label).replace("_", " ").title())}</span>'
+                f'<span class="crm-bar-track"><span class="crm-bar-fill" style="width:{max(4, value / maximum * 100):.1f}%"></span></span>'
+                f'<span class="crm-bar-value">{value}</span>'
+                "</div>"
+            )
+            for label, value in values.items()
+        )
+    return (
+        '<section class="crm-bar-panel">'
+        f"<h3>{escape(title)}</h3><p>{escape(description)}</p>{rows}"
+        "</section>"
     )
 
 
