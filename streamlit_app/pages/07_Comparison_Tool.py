@@ -1,18 +1,19 @@
 from __future__ import annotations
 
+from importlib import reload
+
 import streamlit as st
 
 from app.services.classification.ai_coding import load_ai_coding_proposals
 from app.services.ingestion.workspace import load_document_records
-from app.services.reporting.comparison import (
-    build_classification_comparison,
-    build_document_overview,
-    build_text_comparison,
-    shared_classification_summary,
-)
+from app.services.reporting import comparison as comparison_service
 from app.services.review.adjudication import load_adjudication_decisions
 from app.services.review.manual_coding import load_manual_decisions
 from streamlit_app.ui import page_header, workflow_navigation
+
+# Streamlit Cloud may rerun a page in a worker that still holds the previous
+# module version after a rapid deployment. Reload keeps page and service code atomic.
+comparison_service = reload(comparison_service)
 
 page_header(
     "Compare agreements",
@@ -25,7 +26,7 @@ if len(records) < 2:
     st.info("Upload at least two agreements to begin a comparison.")
 else:
     st.success(f"{len(records)} agreements are available for comparison.")
-    overview_rows = build_document_overview(records)
+    overview_rows = comparison_service.build_document_overview(records)
     selected_ids = st.multiselect(
         "Agreements to compare",
         [record["document_id"] for record in records],
@@ -44,7 +45,7 @@ else:
         if len(selected_records) < 2:
             st.warning("Select at least two agreements.")
         else:
-            text_comparison = build_text_comparison(selected_records)
+            text_comparison = comparison_service.build_text_comparison(selected_records)
             st.subheader("What the agreements discuss")
             st.dataframe(
                 text_comparison["themes"],
@@ -101,7 +102,7 @@ else:
             )
 
     with tab_classifications:
-        comparison_rows = build_classification_comparison(
+        comparison_rows = comparison_service.build_classification_comparison(
             selected_records,
             load_adjudication_decisions(),
             load_manual_decisions(),
@@ -113,7 +114,7 @@ else:
                 "classify provisions in Step 4 to add variable-by-variable results here."
             )
         else:
-            shared_rows = shared_classification_summary(comparison_rows)
+            shared_rows = comparison_service.shared_classification_summary(comparison_rows)
             show_shared_only = st.toggle(
                 "Only variables classified in more than one agreement",
                 value=bool(shared_rows),
