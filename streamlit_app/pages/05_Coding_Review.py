@@ -37,7 +37,7 @@ from app.services.verification.ai_verification import (
     verification_results_to_csv,
 )
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
-from streamlit_app.ui import page_header
+from streamlit_app.ui import page_header, workflow_navigation
 
 page_header("Code and verify", "Apply the research codebook, generate provisional AI proposals, and independently verify their evidence.", eyebrow="Step 4 of 6")
 with st.expander("What happens in this step?", expanded=True):
@@ -482,15 +482,8 @@ with tab_saved:
             mime="text/csv",
         )
 
-st.divider()
-st.subheader("Continue the workflow")
-st.caption(
-    "When the coding and evidence checks are ready, continue to adjudication for the final human decision."
+workflow_navigation(
+    previous=("Review & structure", "pages/02_Agreement_Explorer.py"),
+    next_step=("Adjudicate", "pages/06_Adjudication.py"),
+    note="Continue when coding and evidence checks are ready for a final human decision.",
 )
-col_previous, col_next = st.columns(2)
-with col_previous:
-    if st.button("Previous: Review & structure", use_container_width=True):
-        st.switch_page("pages/02_Agreement_Explorer.py")
-with col_next:
-    if st.button("Next: Adjudicate", type="primary", use_container_width=True):
-        st.switch_page("pages/06_Adjudication.py")

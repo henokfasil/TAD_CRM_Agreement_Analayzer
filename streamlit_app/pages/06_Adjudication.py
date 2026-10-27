@@ -17,7 +17,7 @@ from app.services.review.adjudication import (
     save_adjudication_decision,
 )
 from app.services.review.manual_coding import load_manual_decisions
-from streamlit_app.ui import page_header
+from streamlit_app.ui import page_header, workflow_navigation
 
 page_header("Adjudicate", "Resolve provisional or conflicting coding into a documented human decision with rationale.", eyebrow="Step 5 of 6")
 st.caption(
@@ -93,15 +93,8 @@ with tab_saved:
             mime="text/csv",
         )
 
-st.divider()
-st.subheader("Continue the workflow")
-st.caption(
-    "Return to coding if evidence needs revision, or continue with validated decisions to comparison."
+workflow_navigation(
+    previous=("Code & verify", "pages/05_Coding_Review.py"),
+    next_step=("Compare agreements", "pages/07_Comparison_Tool.py"),
+    note="Return to coding if evidence needs revision, or continue with validated decisions.",
 )
-col_previous, col_next = st.columns(2)
-with col_previous:
-    if st.button("Previous: Code & verify", use_container_width=True):
-        st.switch_page("pages/05_Coding_Review.py")
-with col_next:
-    if st.button("Next: Compare agreements", type="primary", use_container_width=True):
-        st.switch_page("pages/07_Comparison_Tool.py")

@@ -9,6 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
+from app.services.storage.persistent import get_record, load_records, upsert_record, uses_persistent_store
 
 
 def initialize_agreement_tables(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
@@ -76,6 +77,15 @@ def save_agreement_profile(
     profile: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        existing = get_record("agreement_profiles", profile["agreement_id"])
+        saved = {
+            **profile,
+            "created_at": existing["created_at"] if existing else profile["created_at"],
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        upsert_record("agreement_profiles", profile["agreement_id"], saved)
+        return
     resolved_db_path = initialize_agreement_tables(db_path)
     existing = get_agreement_profile(profile["agreement_id"], db_path)
     created_at = existing["created_at"] if existing else profile["created_at"]
@@ -114,6 +124,8 @@ def save_agreement_profile(
 
 
 def load_agreement_profiles(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("agreement_profiles")
     resolved_db_path = initialize_agreement_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -131,6 +143,8 @@ def get_agreement_profile(
     agreement_id: str,
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> dict[str, Any] | None:
+    if uses_persistent_store(db_path):
+        return get_record("agreement_profiles", agreement_id)
     resolved_db_path = initialize_agreement_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -146,6 +160,14 @@ def link_document_to_agreement(
     document_id: str,
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        link = {
+            "agreement_id": agreement_id,
+            "document_id": document_id,
+            "linked_at": datetime.now(timezone.utc).isoformat(),
+        }
+        upsert_record("agreement_documents", f"{agreement_id}:{document_id}", link)
+        return
     resolved_db_path = initialize_agreement_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -164,6 +186,8 @@ def link_document_to_agreement(
 def load_agreement_document_links(
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("agreement_documents")
     resolved_db_path = initialize_agreement_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -197,4 +221,3 @@ def agreement_profiles_to_csv(profiles: list[dict[str, Any]]) -> str:
     for profile in profiles:
         writer.writerow({field: profile.get(field) for field in fieldnames})
     return output.getvalue()
-

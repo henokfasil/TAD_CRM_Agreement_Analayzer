@@ -17,9 +17,14 @@ from app.services.agreements.profiles import (
     load_agreement_profiles,
     save_agreement_profile,
 )
-from app.services.ingestion.workspace import load_document_records, pages_to_csv, records_to_json
+from app.services.ingestion.workspace import (
+    load_document_records,
+    load_original_document,
+    pages_to_csv,
+    records_to_json,
+)
 from app.services.segmentation.basic import segment_document_pages, provisions_to_csv
-from streamlit_app.ui import page_header
+from streamlit_app.ui import page_header, workflow_navigation
 
 page_header("Review and structure", "Inspect extracted pages, check candidate provisions, and connect documents to agreement profiles.", eyebrow="Step 3 of 6")
 records = load_document_records()
@@ -27,8 +32,8 @@ profiles = load_agreement_profiles()
 links = load_agreement_document_links()
 st.session_state.document_workspace = records
 st.caption(
-    "This explorer reads from the prototype SQLite workspace. "
-    "Validated agreement records will move to PostgreSQL in a later phase."
+    "Documents, extracted pages, review decisions, and original PDFs remain available "
+    "across sessions when Neon persistence is configured."
 )
 
 tab_documents, tab_profiles = st.tabs(["Documents and Provisions", "Agreement Profiles"])
@@ -127,6 +132,15 @@ with tab_documents:
         col_b.metric("Parser", selected["extraction_method"] or "n/a")
         col_c.metric("SHA-256", selected["sha256_hash"][:12])
 
+        original_file = load_original_document(selected["document_id"])
+        if original_file:
+            st.download_button(
+                "Download original agreement",
+                original_file["data"],
+                file_name=original_file["original_filename"],
+                mime=original_file["mime_type"],
+            )
+
         tab_pages, tab_provisions = st.tabs(["Pages", "Candidate Provisions"])
 
         with tab_pages:
@@ -189,20 +203,6 @@ with tab_documents:
                         "Inspect the Pages tab before trying another document."
                     )
 
-        if provisions:
-            st.divider()
-            st.subheader("Next step")
-            st.write(
-                "Inspect the candidate provisions above, then continue to Coding Review to "
-                "create manual or AI-assisted proposals."
-            )
-            if st.button(
-                "Next: Start coding review",
-                type="primary",
-                use_container_width=True,
-            ):
-                st.switch_page("pages/05_Coding_Review.py")
-
         with st.expander("Document provenance"):
             st.json(
                 {
@@ -227,3 +227,14 @@ with tab_documents:
             file_name="crm_extracted_pages.csv",
             mime="text/csv",
         )
+
+workflow_navigation(
+    previous=("Ingest documents", "pages/03_New_Document_Ingestion.py"),
+    next_step=("Code & verify", "pages/05_Coding_Review.py"),
+    note=(
+        "Continue after inspecting the extracted pages and candidate provisions."
+        if records
+        else "No extracted agreements are available yet. Return to ingestion first."
+    ),
+    next_disabled=not records,
+)

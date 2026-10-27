@@ -67,3 +67,46 @@ def page_header(title: str, description: str, *, eyebrow: str = "Research worksp
         f'<div class="crm-header"><div class="crm-eyebrow">{escape(eyebrow)}</div><h1>{escape(title)}</h1><p>{escape(description)}</p></div>',
         unsafe_allow_html=True,
     )
+
+
+def workflow_navigation(
+    *,
+    previous: tuple[str, str] | None = None,
+    next_step: tuple[str, str] | None = None,
+    note: str | None = None,
+    next_disabled: bool = False,
+) -> None:
+    """Render consistent navigation between numbered research workflow pages."""
+    st.divider()
+    st.subheader("Continue the workflow")
+    if note:
+        st.caption(note)
+
+    if previous and next_step:
+        previous_column, next_column = st.columns(2)
+    elif previous:
+        previous_column, next_column = st.container(), None
+    else:
+        previous_column, next_column = None, st.container()
+
+    if previous and previous_column:
+        label, page = previous
+        with previous_column:
+            if st.button(
+                f"Previous: {label}",
+                use_container_width=True,
+                key=f"workflow_previous_{page}",
+            ):
+                st.switch_page(page)
+
+    if next_step and next_column:
+        label, page = next_step
+        with next_column:
+            if st.button(
+                f"Next: {label}",
+                type="primary",
+                use_container_width=True,
+                disabled=next_disabled,
+                key=f"workflow_next_{page}",
+            ):
+                st.switch_page(page)

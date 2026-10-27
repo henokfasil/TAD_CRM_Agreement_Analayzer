@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
+from app.services.storage.persistent import load_records, upsert_record, uses_persistent_store
 
 
 def initialize_review_tables(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
@@ -61,6 +62,9 @@ def save_manual_decision(
     decision: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        upsert_record("manual_coding_decisions", decision["decision_id"], decision)
+        return
     resolved_db_path = initialize_review_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -95,6 +99,8 @@ def save_manual_decision(
 
 
 def load_manual_decisions(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("manual_coding_decisions")
     resolved_db_path = initialize_review_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -129,4 +135,3 @@ def decisions_to_csv(decisions: list[dict[str, Any]]) -> str:
     for decision in decisions:
         writer.writerow({field: decision.get(field) for field in writer.fieldnames})
     return output.getvalue()
-

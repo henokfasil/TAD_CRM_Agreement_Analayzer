@@ -10,6 +10,15 @@ from pathlib import Path
 from typing import Any
 
 from app.schemas.documents import ExtractionResult, StoredDocument
+from app.services.storage.persistent import (
+    delete_collection,
+    delete_document_files,
+    load_document_file as load_persistent_document_file,
+    load_records as load_persistent_records,
+    save_document_file,
+    upsert_record,
+    uses_persistent_store,
+)
 
 DEFAULT_WORKSPACE_DB_PATH = Path("data/processed/document_workspace.sqlite")
 
@@ -131,6 +140,10 @@ def save_document_record(
     record: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        save_document_file(record)
+        upsert_record("documents", record["document_id"], record)
+        return
     resolved_db_path = initialize_workspace_db(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -191,6 +204,8 @@ def save_document_record(
 def load_document_records(
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_persistent_records("documents")
     resolved_db_path = initialize_workspace_db(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -238,12 +253,41 @@ def load_document_records(
 
 
 def count_document_records(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> int:
+    if uses_persistent_store(db_path):
+        return len(load_persistent_records("documents"))
     resolved_db_path = initialize_workspace_db(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         return int(connection.execute("SELECT COUNT(*) FROM documents").fetchone()[0])
 
 
+def load_original_document(
+    document_id: str,
+    db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
+) -> dict[str, Any] | None:
+    if uses_persistent_store(db_path):
+        return load_persistent_document_file(document_id)
+    record = next(
+        (item for item in load_document_records(db_path) if item["document_id"] == document_id),
+        None,
+    )
+    if not record:
+        return None
+    path = Path(record["stored_path"])
+    if not path.exists():
+        return None
+    return {
+        "original_filename": record["original_filename"],
+        "mime_type": "application/pdf" if path.suffix.lower() == ".pdf" else "application/octet-stream",
+        "size_bytes": path.stat().st_size,
+        "data": path.read_bytes(),
+    }
+
+
 def clear_document_records(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> None:
+    if uses_persistent_store(db_path):
+        delete_collection("documents")
+        delete_document_files()
+        return
     resolved_db_path = initialize_workspace_db(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute("DELETE FROM document_pages")

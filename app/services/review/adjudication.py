@@ -9,6 +9,7 @@ from typing import Any
 from uuid import uuid4
 
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
+from app.services.storage.persistent import load_records, upsert_record, uses_persistent_store
 
 
 def initialize_adjudication_tables(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
@@ -61,6 +62,9 @@ def save_adjudication_decision(
     decision: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        upsert_record("adjudication_decisions", decision["adjudication_id"], decision)
+        return
     resolved_db_path = initialize_adjudication_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -99,6 +103,8 @@ def save_adjudication_decision(
 def load_adjudication_decisions(
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("adjudication_decisions")
     resolved_db_path = initialize_adjudication_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -132,4 +138,3 @@ def adjudications_to_csv(decisions: list[dict[str, Any]]) -> str:
     for decision in decisions:
         writer.writerow({field: decision.get(field) for field in fieldnames})
     return output.getvalue()
-

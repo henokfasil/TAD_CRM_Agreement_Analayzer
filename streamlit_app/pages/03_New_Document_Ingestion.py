@@ -25,7 +25,7 @@ from app.services.ingestion.workspace import (
 from app.services.parsing.pdf import extract_pdf_pages
 from app.services.segmentation.basic import segment_document_pages
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
-from streamlit_app.ui import page_header
+from streamlit_app.ui import page_header, workflow_navigation
 
 page_header("Ingest documents", "Upload source agreements, recover scanned text with OCR, and verify extraction quality before review.", eyebrow="Step 2 of 6")
 sync_streamlit_secrets_to_env()
@@ -120,18 +120,6 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
             }
         )
 
-    st.divider()
-    st.subheader("Next step")
-    if provisions:
-        st.write("Open the agreement, inspect the candidate provisions, and continue to coding.")
-        if st.button("Next: Review agreement", type="primary", use_container_width=True):
-            st.switch_page("pages/02_Agreement_Explorer.py")
-    else:
-        st.write("Review the extracted pages to diagnose why no candidate provisions were found.")
-        if st.button("Next: Inspect extracted pages", type="primary", use_container_width=True):
-            st.switch_page("pages/02_Agreement_Explorer.py")
-
-
 with tab_upload:
     uploaded = st.file_uploader("Upload agreement document", type=["pdf", "docx", "txt"])
     if uploaded:
@@ -208,3 +196,15 @@ with tab_workspace:
             clear_document_records()
             st.session_state.document_workspace = []
             st.rerun()
+
+records = load_document_records()
+workflow_navigation(
+    previous=("Discover agreements", "pages/04_Discovery_Queue.py"),
+    next_step=("Review & structure", "pages/02_Agreement_Explorer.py"),
+    note=(
+        "Your extracted agreement is ready for review."
+        if records
+        else "Upload and extract at least one agreement before continuing."
+    ),
+    next_disabled=not records,
+)

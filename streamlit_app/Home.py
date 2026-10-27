@@ -22,6 +22,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 apply_app_style()
+sync_streamlit_secrets_to_env()
 
 
 def render_home() -> None:

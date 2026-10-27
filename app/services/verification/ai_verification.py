@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
+from app.services.storage.persistent import load_records, upsert_record, uses_persistent_store
 
 
 def initialize_verification_tables(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
@@ -66,6 +67,9 @@ def save_verification_result(
     result: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        upsert_record("ai_verification_results", result["verification_id"], result)
+        return
     resolved_db_path = initialize_verification_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -104,6 +108,8 @@ def save_verification_result(
 
 
 def load_verification_results(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("ai_verification_results")
     resolved_db_path = initialize_verification_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
@@ -145,4 +151,3 @@ def verification_results_to_csv(results: list[dict[str, Any]]) -> str:
     for result in results:
         writer.writerow({field: result.get(field) for field in fieldnames})
     return output.getvalue()
-

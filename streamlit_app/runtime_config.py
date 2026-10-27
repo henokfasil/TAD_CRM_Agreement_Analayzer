@@ -9,6 +9,12 @@ from streamlit.errors import StreamlitSecretNotFoundError
 
 
 SECRET_ENV_KEYS = {
+    "DATABASE_URL",
+    "AWS_ACCESS_KEY_ID",
+    "AWS_SECRET_ACCESS_KEY",
+    "AWS_ENDPOINT_URL_S3",
+    "AWS_REGION",
+    "NEON_STORAGE_BUCKET",
     "ALLOW_EXTERNAL_LLM",
     "OPENAI_API_KEY",
     "OPENAI_BASE_URL",

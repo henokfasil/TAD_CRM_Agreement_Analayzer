@@ -17,6 +17,7 @@ from app.schemas.codebook import CodebookVariableSchema
 from app.schemas.llm import LLMMessage, LLMRequest
 from app.services.classification.rules import evaluate_dependency_rules
 from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initialize_workspace_db
+from app.services.storage.persistent import load_records, upsert_record, uses_persistent_store
 
 
 def initialize_ai_coding_tables(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
@@ -209,6 +210,9 @@ def save_ai_coding_proposal(
     proposal: dict[str, Any],
     db_path: Path = DEFAULT_WORKSPACE_DB_PATH,
 ) -> None:
+    if uses_persistent_store(db_path):
+        upsert_record("ai_coding_proposals", proposal["proposal_id"], proposal)
+        return
     resolved_db_path = initialize_ai_coding_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.execute(
@@ -257,6 +261,8 @@ def save_ai_coding_proposal(
 
 
 def load_ai_coding_proposals(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> list[dict[str, Any]]:
+    if uses_persistent_store(db_path):
+        return load_records("ai_coding_proposals")
     resolved_db_path = initialize_ai_coding_tables(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row

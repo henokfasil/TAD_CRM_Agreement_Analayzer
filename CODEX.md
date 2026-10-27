@@ -30,6 +30,27 @@ https://crmagreement.streamlit.app
 The cloud deployment currently shows the Phase 1 shell and codebook count. The local PDF is not
 included in GitHub because `*.pdf` is ignored; cloud users should use the upload tab for documents.
 
+Persistent cloud workspace work is now implemented for deployment:
+
+- the repository is linked locally to Neon project `CRM Agreements` (`red-lake-31237853`) without
+  committing credentials or the ignored `.neon` context file;
+- structured workflow records use Neon PostgreSQL when a non-local `DATABASE_URL` is configured;
+- original PDFs use the private Neon Object Storage bucket `crm-agreements` with content-addressed
+  object keys and path-style S3 requests;
+- ingestion, profile, coding, verification, and adjudication services retain SQLite behavior for
+  local tests and explicit temporary database paths;
+- the agreement explorer can download the original stored agreement as a persistence check;
+- Streamlit secrets are mapped into `DATABASE_URL`, `NEON_STORAGE_BUCKET`, `AWS_ACCESS_KEY_ID`,
+  `AWS_SECRET_ACCESS_KEY`, `AWS_ENDPOINT_URL_S3`, and `AWS_REGION` at application startup;
+- `alembic/versions/0002_neon_persistent_workspace.py` records the durable store schema;
+- a disposable Neon branch named `dev-persistent-storage` was used for schema and CRUD smoke tests;
+- the OECD network blocks direct outbound PostgreSQL traffic on port 5432, so local database
+  connection attempts time out; browser/HTTPS Neon operations work, and Streamlit Cloud should use
+  the connection through its own network.
+
+The deployed app only becomes durable after all database/object-storage values are entered in the
+Streamlit Community Cloud secrets panel. Never commit those values.
+
 Phase 1B adds a Streamlit session document workspace:
 
 - `New Document Ingestion` registers extracted PDFs in `st.session_state.document_workspace`;
@@ -352,6 +373,10 @@ Cloud hotfix after Phase 2H:
 - `Admin and Codebook > Models` now shows configured and effective Gemini model values.
 
 After the Gemini model/error-sanitization hotfix, the test suite result is `29 passed`.
+
+After ordered workflow navigation, OCR-aware ingestion, and Neon persistence adapters were added,
+the full suite passed in the active Python 3.12 environment. The durable store was also smoke-tested
+on the disposable Neon development branch with create, insert, select, and delete operations.
 
 Presentation handoff / pause state:
 

@@ -11,11 +11,19 @@ from app.services.ingestion.workspace import DEFAULT_WORKSPACE_DB_PATH, initiali
 from app.services.review.manual_coding import initialize_review_tables
 from app.services.review.adjudication import initialize_adjudication_tables
 from app.services.verification.ai_verification import initialize_verification_tables
+from app.services.storage.persistent import (
+    initialize_persistent_store,
+    persistent_store_status,
+    uses_persistent_store,
+)
 
 CURRENT_SCHEMA_VERSION = 1
 
 
 def initialize_application_schema(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> Path:
+    if uses_persistent_store(db_path):
+        initialize_persistent_store()
+        return db_path
     resolved_db_path = initialize_workspace_db(db_path)
     initialize_agreement_tables(resolved_db_path)
     initialize_review_tables(resolved_db_path)
@@ -51,6 +59,11 @@ def initialize_application_schema(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> 
 
 
 def get_schema_status(db_path: Path = DEFAULT_WORKSPACE_DB_PATH) -> dict[str, Any]:
+    if uses_persistent_store(db_path):
+        return {
+            **persistent_store_status(),
+            "current_schema_version": CURRENT_SCHEMA_VERSION,
+        }
     resolved_db_path = initialize_application_schema(db_path)
     with sqlite3.connect(resolved_db_path) as connection:
         connection.row_factory = sqlite3.Row
