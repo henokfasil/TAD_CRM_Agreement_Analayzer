@@ -43,6 +43,8 @@ def apply_app_style() -> None:
         div.stButton > button, div.stDownloadButton > button { border-radius:13px; border-color:#c9b9a6; min-height:2.8rem; font-weight:650; }
         div.stButton > button[kind="primary"] { background:linear-gradient(135deg,var(--crm-forest),var(--crm-sage)); border:0; color:#fff; box-shadow:0 8px 18px rgba(49,75,61,.20); }
         [data-testid="stFileUploaderDropzone"] { background:var(--crm-paper); border:1.5px dashed #b99f82; border-radius:18px; }
+        [data-testid="stFileUploaderDropzone"]:hover { border-color:var(--crm-clay); background:#fffaf2; }
+        [data-testid="stFileUploaderDropzone"] button { background:var(--crm-forest); color:white; border:0; }
         [data-testid="stAlert"] { border-radius:12px; }
         [data-testid="stDataFrame"] { border:1px solid var(--crm-border); border-radius:12px; overflow:hidden; }
         hr { border-color:var(--crm-border); }
@@ -55,7 +57,26 @@ def apply_app_style() -> None:
         .crm-flow-card:nth-child(3) .crm-flow-number { background:var(--crm-ochre); color:#493b27; }
         .crm-flow-card h3 { margin:.9rem 0 .4rem; font-family:Georgia,serif; font-size:1.15rem; }
         .crm-flow-card p { color:var(--crm-muted); font-size:.92rem; margin:0; }
+        .crm-result-panel { margin:1.35rem 0 1rem; padding:1.45rem; background:linear-gradient(135deg,#fffdf8 0%,#f4eee4 100%); border:1px solid var(--crm-border); border-radius:22px; box-shadow:0 14px 35px rgba(74,57,39,.07); }
+        .crm-result-panel--warning { background:linear-gradient(135deg,#fffdf8 0%,#fbf4df 100%); border-color:#e3ca88; }
+        .crm-result-panel--warning .crm-result-check { background:#a8731f; }
+        .crm-result-panel--warning .crm-result-kicker { color:#8a5d18; }
+        .crm-result-panel--warning .crm-status-pill { background:#f5e4b7; color:#765016; }
+        .crm-result-heading { display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:.9rem; align-items:center; padding-bottom:1.15rem; border-bottom:1px solid var(--crm-border); }
+        .crm-result-check { display:grid; place-items:center; width:2.45rem; height:2.45rem; border-radius:50%; background:var(--crm-forest); color:white; font-size:1.1rem; }
+        .crm-result-kicker { color:var(--crm-sage); font-size:.7rem; font-weight:800; letter-spacing:.13em; text-transform:uppercase; }
+        .crm-result-heading h3 { margin:.12rem 0 0; font-family:Georgia,serif; font-size:1.18rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .crm-status-pill { padding:.38rem .72rem; border-radius:999px; background:#e3ebdf; color:var(--crm-forest); font-size:.76rem; font-weight:700; }
+        .crm-summary-grid { display:grid; grid-template-columns:repeat(5,minmax(110px,1fr)); gap:0; padding-top:1.15rem; }
+        .crm-summary-grid > div { min-width:0; padding:.15rem 1rem; border-right:1px solid var(--crm-border); }
+        .crm-summary-grid > div:first-child { padding-left:0; }
+        .crm-summary-grid > div:last-child { border-right:0; }
+        .crm-summary-grid span { display:block; margin-bottom:.24rem; color:var(--crm-muted); font-size:.72rem; letter-spacing:.04em; text-transform:uppercase; }
+        .crm-summary-grid strong { display:block; color:var(--crm-forest); font-size:.96rem; font-weight:700; white-space:normal; overflow-wrap:anywhere; }
+        .crm-preview-title { margin:1.8rem 0 .25rem; font-family:Georgia,serif; font-size:1.45rem; color:var(--crm-forest); }
         @media (max-width:800px) { .crm-hero { grid-template-columns:1fr; } .crm-paper-stack { display:none; } .crm-flow { grid-template-columns:1fr; } }
+        @media (max-width:900px) { .crm-summary-grid { grid-template-columns:repeat(2,1fr); gap:.85rem; } .crm-summary-grid > div, .crm-summary-grid > div:first-child { padding:.2rem 0; border-right:0; } }
+        @media (max-width:560px) { .crm-result-panel { padding:1rem; border-radius:16px; } .crm-result-heading { grid-template-columns:auto minmax(0,1fr); } .crm-status-pill { grid-column:2; justify-self:start; } }
         </style>
         """,
         unsafe_allow_html=True,
