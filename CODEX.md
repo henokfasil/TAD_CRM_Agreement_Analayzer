@@ -57,6 +57,11 @@ without requiring adjudication. Variable-level comparison progressively incorpor
 manual classifications, and human-approved adjudications, with human-approved values taking
 precedence and provenance status remaining visible.
 
+Step 6 also performs an immediate exploratory comparison of the extracted agreement text: thematic
+keyword coverage, page-level evidence excerpts, pairwise vocabulary overlap, shared terms, and
+distinctive terms. These text-derived indicators are explicitly presented as exploratory signals, not
+validated legal conclusions.
+
 Phase 1B adds a Streamlit session document workspace:
 
 - `New Document Ingestion` registers extracted PDFs in `st.session_state.document_workspace`;

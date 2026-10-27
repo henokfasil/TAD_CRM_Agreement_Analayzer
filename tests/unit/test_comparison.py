@@ -1,6 +1,7 @@
 from app.services.reporting.comparison import (
     build_classification_comparison,
     build_document_overview,
+    build_text_comparison,
     shared_classification_summary,
 )
 
@@ -43,3 +44,13 @@ def test_human_approved_value_takes_precedence() -> None:
     a_row = next(row for row in rows if row["agreement"] == "A.pdf")
     assert a_row["value"] == "Yes"
     assert a_row["status"] == "Human-approved"
+
+
+def test_text_comparison_finds_themes_overlap_and_evidence() -> None:
+    records = [_record("a", "A.pdf"), _record("b", "B.pdf")]
+    result = build_text_comparison(records)
+    raw_materials = next(row for row in result["themes"] if row["theme"] == "Raw-material value chains")
+    assert raw_materials["A.pdf"] > 0
+    assert raw_materials["B.pdf"] > 0
+    assert result["pairwise"][0]["shared_vocabulary_percent"] > 0
+    assert result["evidence"]["Recycling and circularity"]["A.pdf"][0]["page"] == 1

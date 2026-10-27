@@ -7,6 +7,7 @@ from app.services.ingestion.workspace import load_document_records
 from app.services.reporting.comparison import (
     build_classification_comparison,
     build_document_overview,
+    build_text_comparison,
     shared_classification_summary,
 )
 from app.services.review.adjudication import load_adjudication_decisions
@@ -36,7 +37,52 @@ else:
     selected_records = [record for record in records if record["document_id"] in selected_ids]
     selected_overview = [row for row in overview_rows if row["document_id"] in selected_ids]
 
-    tab_overview, tab_classifications = st.tabs(["Document comparison", "Research classifications"])
+    tab_text, tab_overview, tab_classifications = st.tabs(
+        ["Text & themes", "Document facts", "Research classifications"]
+    )
+    with tab_text:
+        if len(selected_records) < 2:
+            st.warning("Select at least two agreements.")
+        else:
+            text_comparison = build_text_comparison(selected_records)
+            st.subheader("What the agreements discuss")
+            st.dataframe(
+                text_comparison["themes"],
+                use_container_width=True,
+                hide_index=True,
+            )
+            st.caption(
+                "Numbers are keyword mentions in the extracted text. They show emphasis, not a "
+                "validated legal conclusion."
+            )
+
+            selected_theme = st.selectbox(
+                "Inspect supporting passages for a theme",
+                [row["theme"] for row in text_comparison["themes"]],
+            )
+            evidence_columns = st.columns(len(selected_records))
+            for column, record in zip(evidence_columns, selected_records):
+                filename = record["original_filename"]
+                with column:
+                    st.markdown(f"**{filename}**")
+                    excerpts = text_comparison["evidence"][selected_theme][filename]
+                    if excerpts:
+                        for item in excerpts:
+                            st.caption(f"Page {item['page']}")
+                            st.write(item["excerpt"])
+                    else:
+                        st.write("No matching passage detected.")
+
+            st.subheader("Overall textual overlap")
+            st.dataframe(
+                text_comparison["pairwise"],
+                use_container_width=True,
+                hide_index=True,
+            )
+            with st.expander("Distinctive terms in each agreement"):
+                for filename, terms in text_comparison["distinctive_terms"].items():
+                    st.markdown(f"**{filename}:** {terms or 'No distinctive terms detected.'}")
+
     with tab_overview:
         if len(selected_records) < 2:
             st.warning("Select at least two agreements.")
@@ -50,7 +96,7 @@ else:
                 hide_index=True,
             )
             st.caption(
-                "This comparison is available immediately from the uploaded documents. "
+                "These document facts are available immediately from the uploaded documents. "
                 "Candidate-provision counts are machine-generated and remain provisional."
             )
 
