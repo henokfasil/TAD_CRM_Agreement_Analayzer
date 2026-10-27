@@ -32,7 +32,7 @@ def apply_app_style() -> None:
         .crm-paper-stack { position:relative; height:240px; }
         .crm-paper { position:absolute; width:78%; height:185px; right:6%; top:25px; padding:1.5rem; border-radius:8px; background:var(--crm-paper); border:1px solid #d8cbbb; box-shadow:0 15px 30px rgba(76,58,39,.14); transform:rotate(4deg); }
         .crm-paper::before { content:"ARTICLE 4"; color:var(--crm-clay); font-size:.7rem; font-weight:800; letter-spacing:.12em; }
-        .crm-paper::after { content:"Evidence  →  coding  →  review"; display:block; margin-top:1.3rem; color:var(--crm-forest); font-family:Georgia,serif; font-size:1.2rem; line-height:1.45; }
+        .crm-paper::after { content:"Evidence  →  classification  →  review"; display:block; margin-top:1.3rem; color:var(--crm-forest); font-family:Georgia,serif; font-size:1.2rem; line-height:1.45; }
         .crm-paper-back { position:absolute; width:74%; height:178px; right:19%; top:8px; border-radius:8px; background:#d9c5aa; transform:rotate(-5deg); }
         [data-testid="stMetric"] { background:var(--crm-paper); border:1px solid var(--crm-border); border-radius:18px; padding:1.05rem 1.15rem; box-shadow:0 8px 22px rgba(74,57,39,.055); }
         [data-testid="stMetricLabel"] { color:var(--crm-muted); }

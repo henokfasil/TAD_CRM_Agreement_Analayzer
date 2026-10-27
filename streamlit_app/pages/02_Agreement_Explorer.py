@@ -229,8 +229,8 @@ with tab_documents:
         )
 
 workflow_navigation(
-    previous=("Ingest documents", "pages/03_New_Document_Ingestion.py"),
-    next_step=("Code & verify", "pages/05_Coding_Review.py"),
+    previous=("Upload agreements", "pages/03_New_Document_Ingestion.py"),
+    next_step=("Classify & verify", "pages/05_Coding_Review.py"),
     note=(
         "Continue after inspecting the extracted pages and candidate provisions."
         if records

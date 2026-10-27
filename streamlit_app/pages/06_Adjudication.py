@@ -19,17 +19,21 @@ from app.services.review.adjudication import (
 from app.services.review.manual_coding import load_manual_decisions
 from streamlit_app.ui import page_header, workflow_navigation
 
-page_header("Adjudicate", "Resolve provisional or conflicting coding into a documented human decision with rationale.", eyebrow="Step 5 of 6")
+page_header(
+    "Final review",
+    "Resolve provisional or conflicting classifications into a documented human decision with a short rationale.",
+    eyebrow="Step 5 of 6",
+)
 st.caption(
-    "Adjudication creates final prototype decisions while preserving the original manual decision "
-    "or AI proposal as the source record."
+    "Final review records the accepted value and your reason while preserving the original manual "
+    "classification or AI suggestion."
 )
 
 manual_decisions = load_manual_decisions()
 ai_proposals = load_ai_coding_proposals()
 adjudications = load_adjudication_decisions()
 
-tab_create, tab_saved = st.tabs(["Create Adjudication", "Saved Adjudications"])
+tab_create, tab_saved = st.tabs(["Make final decision", "Saved final decisions"])
 
 with tab_create:
     source_type = st.radio("Source type", ["manual", "ai"], horizontal=True)
@@ -62,10 +66,14 @@ with tab_create:
         )
 
         final_value = st.text_input("Final value", value=str(selected_source["proposed_value"]))
-        adjudicator_id = st.text_input("Adjudicator id", value="prototype_reviewer")
-        rationale = st.text_area("Adjudication rationale", height=140)
+        adjudicator_id = st.text_input("Reviewer ID", value="prototype_reviewer")
+        rationale = st.text_area(
+            "Reason for the final decision",
+            height=140,
+            placeholder="Explain briefly why this value best matches the agreement evidence.",
+        )
 
-        if st.button("Save adjudicated decision", type="primary"):
+        if st.button("Save final decision", type="primary"):
             if not rationale.strip():
                 st.error("Rationale is required.")
             else:
@@ -77,24 +85,24 @@ with tab_create:
                     adjudicator_id=adjudicator_id,
                 )
                 save_adjudication_decision(decision)
-                st.success("Adjudicated decision saved.")
+                st.success("Final decision saved.")
                 st.rerun()
 
 with tab_saved:
     if not adjudications:
-        st.info("No adjudication decisions saved yet.")
+        st.info("No final decisions saved yet.")
     else:
-        st.metric("Adjudicated decisions", len(adjudications))
+        st.metric("Final decisions", len(adjudications))
         st.dataframe(adjudications, use_container_width=True, hide_index=True)
         st.download_button(
-            "Download adjudications CSV",
+            "Download final decisions CSV",
             adjudications_to_csv(adjudications),
             file_name="crm_adjudication_decisions.csv",
             mime="text/csv",
         )
 
 workflow_navigation(
-    previous=("Code & verify", "pages/05_Coding_Review.py"),
+    previous=("Classify & verify", "pages/05_Coding_Review.py"),
     next_step=("Compare agreements", "pages/07_Comparison_Tool.py"),
-    note="Return to coding if evidence needs revision, or continue with validated decisions.",
+    note="Return to classification if evidence needs revision, or continue with validated decisions.",
 )

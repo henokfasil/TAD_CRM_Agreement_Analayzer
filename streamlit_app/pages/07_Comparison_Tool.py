@@ -132,6 +132,6 @@ else:
                 )
 
 workflow_navigation(
-    previous=("Adjudicate", "pages/06_Adjudication.py"),
+    previous=("Final review", "pages/06_Adjudication.py"),
     note="This is the final numbered workflow step. Document comparison starts with two uploads; reviewed classifications deepen it.",
 )

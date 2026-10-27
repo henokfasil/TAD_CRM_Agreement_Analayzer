@@ -24,6 +24,10 @@ st.set_page_config(
 apply_app_style()
 sync_streamlit_secrets_to_env()
 
+OECD_LOGO = PROJECT_ROOT / "streamlit_app" / "assets" / "oecd-logo.png"
+if OECD_LOGO.exists():
+    st.logo(str(OECD_LOGO), size="large", link="https://www.oecd.org/")
+
 
 def render_home() -> None:
     sync_streamlit_secrets_to_env()
@@ -49,7 +53,7 @@ def render_home() -> None:
     )
 
     col_a, col_b, col_c, col_d = st.columns(4)
-    col_a.metric("Workspace documents", workspace_count)
+    col_a.metric("Saved agreements", workspace_count)
     col_b.metric("Workflow stage", "Research prototype")
     col_c.metric("Review model", "Human-in-the-loop")
     col_d.metric("Codebook variables", len(codebook.variables))
@@ -60,8 +64,8 @@ def render_home() -> None:
         """
         <div class="crm-flow">
             <div class="crm-flow-card"><span class="crm-flow-number">1</span><h3>Bring the source in</h3><p>Upload the official PDF. OCR quietly recovers text from scanned pages.</p></div>
-            <div class="crm-flow-card"><span class="crm-flow-number">2</span><h3>Read, code, and challenge</h3><p>Review provisions, propose codebook values, and test every claim against evidence.</p></div>
-            <div class="crm-flow-card"><span class="crm-flow-number">3</span><h3>Decide and compare</h3><p>Adjudicate uncertain results, then compare agreements and export defensible data.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">2</span><h3>Read, classify, and verify</h3><p>Review provisions, assign research categories, and test every claim against evidence.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">3</span><h3>Finalise and compare</h3><p>Resolve uncertain results, then compare agreements and export defensible data.</p></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -71,7 +75,7 @@ def render_home() -> None:
         st.switch_page("pages/03_New_Document_Ingestion.py")
 
     st.info(
-        "AI outputs remain provisional until human review or adjudication. Every coding decision "
+        "AI outputs remain provisional until final human review. Every classification decision "
         "retains page-level evidence and provenance."
     )
 
@@ -82,10 +86,10 @@ pages = {
     ],
     "Research workflow": [
         st.Page("pages/04_Discovery_Queue.py", title="1 · Discover agreements", icon="🔎"),
-        st.Page("pages/03_New_Document_Ingestion.py", title="2 · Ingest documents", icon="📄"),
+        st.Page("pages/03_New_Document_Ingestion.py", title="2 · Upload agreements", icon="📄"),
         st.Page("pages/02_Agreement_Explorer.py", title="3 · Review & structure", icon="🧭"),
-        st.Page("pages/05_Coding_Review.py", title="4 · Code & verify", icon="🏷️"),
-        st.Page("pages/06_Adjudication.py", title="5 · Adjudicate", icon="✅"),
+        st.Page("pages/05_Coding_Review.py", title="4 · Classify & verify", icon="🏷️"),
+        st.Page("pages/06_Adjudication.py", title="5 · Final review", icon="✅"),
     ],
     "Analysis & outputs": [
         st.Page("pages/07_Comparison_Tool.py", title="6 · Compare agreements", icon="⚖️"),

@@ -27,14 +27,18 @@ from app.services.segmentation.basic import segment_document_pages
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 from streamlit_app.ui import page_header, workflow_navigation
 
-page_header("Ingest documents", "Upload source agreements, recover scanned text with OCR, and verify extraction quality before review.", eyebrow="Step 2 of 6")
+page_header(
+    "Upload agreements",
+    "Add PDF agreements, recover scanned text with OCR, and confirm that the text is readable.",
+    eyebrow="Step 2 of 6",
+)
 sync_streamlit_secrets_to_env()
 settings = get_settings()
 
 if "document_workspace" not in st.session_state:
     st.session_state.document_workspace = load_document_records()
 
-tab_upload, tab_local, tab_workspace = st.tabs(["Upload", "Local PDF", "Workspace"])
+tab_upload, tab_saved = st.tabs(["Upload agreement", "Saved agreements"])
 
 
 def render_extraction(path: Path, original_filename: str | None = None) -> None:
@@ -83,7 +87,7 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
         st.warning(extraction.ocr_warning)
     if not text_characters:
         st.error(
-            "No readable text was extracted. This document cannot proceed to coding yet. "
+            "No readable text was extracted. This document cannot proceed to classification yet. "
             "Try an OCR-readable copy or ask an administrator to verify Tesseract installation."
         )
     elif not provisions:
@@ -94,7 +98,7 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
     else:
         st.success(
             "The document is ready. Review its pages and candidate provisions, then continue to "
-            "coding."
+            "classification and verification."
         )
 
     page_numbers = [page.page_number for page in extraction.pages]
@@ -121,35 +125,28 @@ def render_extraction(path: Path, original_filename: str | None = None) -> None:
         )
 
 with tab_upload:
-    uploaded = st.file_uploader("Upload agreement document", type=["pdf", "docx", "txt"])
+    st.caption("Choose a PDF. The original file and its extracted text are saved for later sessions.")
+    uploaded = st.file_uploader("Choose an agreement PDF", type=["pdf"])
     if uploaded:
         suffix = Path(uploaded.name).suffix
         with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as handle:
             handle.write(uploaded.getbuffer())
             temp_path = Path(handle.name)
-        render_extraction(temp_path, uploaded.name)
+        try:
+            render_extraction(temp_path, uploaded.name)
+        finally:
+            temp_path.unlink(missing_ok=True)
 
-with tab_local:
-    local_pdf = Path("CRM Agreements.pdf")
-    if local_pdf.exists():
-        st.write("Detected local project PDF.")
-        st.code(str(local_pdf))
-        if st.button("Extract local PDF", type="primary"):
-            render_extraction(local_pdf, local_pdf.name)
-    else:
-        st.info("No `CRM Agreements.pdf` file found in the project root.")
-
-with tab_workspace:
+with tab_saved:
     records = load_document_records()
     st.session_state.document_workspace = records
     st.caption(
-        "Workspace records are saved in a lightweight SQLite store for this app instance. "
-        "Use downloads for durable research handoff until PostgreSQL is connected."
+        "Uploaded agreements and extracted text are saved securely and remain available across sessions."
     )
     if not records:
-        st.info("No documents have been extracted in this workspace yet.")
+        st.info("No saved agreements yet. Upload the first PDF in the tab above.")
     else:
-        st.metric("Documents in workspace", len(records))
+        st.metric("Saved agreements", len(records))
         st.dataframe(
             [
                 {
@@ -173,15 +170,15 @@ with tab_workspace:
         )
         selected = next(record for record in records if record["document_id"] == selected_id)
         page_numbers = [page["page_number"] for page in selected["pages"]]
-        selected_page_number = st.selectbox("Workspace page", page_numbers)
+        selected_page_number = st.selectbox("Page", page_numbers)
         selected_page = next(
             page for page in selected["pages"] if page["page_number"] == selected_page_number
         )
-        st.text_area("Workspace extracted text", selected_page["text"], height=320)
+        st.text_area("Extracted text", selected_page["text"], height=320)
 
         col_json, col_csv = st.columns(2)
         col_json.download_button(
-            "Download workspace JSON",
+            "Download agreement records JSON",
             records_to_json(records),
             file_name="crm_document_workspace.json",
             mime="application/json",
@@ -192,7 +189,9 @@ with tab_workspace:
             file_name="crm_extracted_pages.csv",
             mime="text/csv",
         )
-        if st.button("Clear workspace"):
+        st.warning("Deleting removes every saved agreement and its extracted text from the app.")
+        confirm_delete = st.checkbox("I understand that all saved agreements will be deleted")
+        if st.button("Delete all saved agreements", disabled=not confirm_delete):
             clear_document_records()
             st.session_state.document_workspace = []
             st.rerun()

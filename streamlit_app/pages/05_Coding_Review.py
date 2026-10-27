@@ -39,13 +39,17 @@ from app.services.verification.ai_verification import (
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env
 from streamlit_app.ui import page_header, workflow_navigation
 
-page_header("Code and verify", "Apply the research codebook, generate provisional AI proposals, and independently verify their evidence.", eyebrow="Step 4 of 6")
+page_header(
+    "Classify and verify",
+    "Assign research categories to relevant passages, review provisional AI suggestions, and verify every result against the agreement.",
+    eyebrow="Step 4 of 6",
+)
 with st.expander("What happens in this step?", expanded=True):
     col_explain_1, col_explain_2, col_explain_3 = st.columns(3)
     with col_explain_1:
-        st.markdown("#### 1 · Choose what to code")
+        st.markdown("#### 1 · Choose a passage")
         st.write(
-            "Select a candidate provision and the codebook variable you want to assess."
+            "Select a candidate provision and the research category you want to assess."
         )
     with col_explain_2:
         st.markdown("#### 2 · Make a proposal")
@@ -58,7 +62,7 @@ with st.expander("What happens in this step?", expanded=True):
             "The prototype verifier flags missing evidence and codebook-rule conflicts. "
             "A human still decides what is valid."
         )
-st.warning("No AI-generated code is treated as validated until reviewer approval or adjudication.")
+st.warning("No AI suggestion is treated as validated until a reviewer approves it in the final review.")
 
 sync_streamlit_secrets_to_env()
 settings = get_settings()
@@ -70,12 +74,12 @@ ai_proposals = load_ai_coding_proposals()
 verification_results = load_verification_results()
 
 tab_review, tab_ai, tab_verify, tab_queue, tab_saved = st.tabs(
-    ["Manual Coding", "AI Proposal", "Verification", "Review Queue", "Saved Decisions"]
+    ["Manual classification", "AI suggestion", "Verification", "Review queue", "Saved decisions"]
 )
 
 with tab_review:
     if not records:
-        st.info("No extracted documents are available. Use New Document Ingestion first.")
+        st.info("No extracted documents are available. Upload an agreement first.")
     else:
         selected_document_id = st.selectbox(
             "Document",
@@ -484,6 +488,6 @@ with tab_saved:
 
 workflow_navigation(
     previous=("Review & structure", "pages/02_Agreement_Explorer.py"),
-    next_step=("Adjudicate", "pages/06_Adjudication.py"),
-    note="Continue when coding and evidence checks are ready for a final human decision.",
+    next_step=("Final review", "pages/06_Adjudication.py"),
+    note="Continue when classifications and evidence checks are ready for a final human decision.",
 )
