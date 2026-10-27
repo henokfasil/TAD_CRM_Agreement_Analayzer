@@ -51,6 +51,12 @@ Persistent cloud workspace work is now implemented for deployment:
 The deployed app only becomes durable after all database/object-storage values are entered in the
 Streamlit Community Cloud secrets panel. Never commit those values.
 
+The comparison workflow now activates as soon as two documents are present. Step 6 shows an
+immediate document-level comparison (pages, candidate provisions, extracted characters, and parser)
+without requiring adjudication. Variable-level comparison progressively incorporates AI proposals,
+manual classifications, and human-approved adjudications, with human-approved values taking
+precedence and provenance status remaining visible.
+
 Phase 1B adds a Streamlit session document workspace:
 
 - `New Document Ingestion` registers extracted PDFs in `st.session_state.document_workspace`;
