@@ -1,5 +1,6 @@
 .env
 .env.neon
+.env.local
 .venv/
 __pycache__/
 *.py[cod]
@@ -15,3 +16,4 @@ data/fixtures/runtime/
 pytest-cache-files-*/
 uv.lock
 .neon
+.env.local
