@@ -46,7 +46,6 @@ encoded_presentation = base64.b64encode(presentation_html.encode("utf-8")).decod
 st.iframe(
     f"data:text/html;base64,{encoded_presentation}",
     height=780,
-    scrolling=False,
 )
 
 with st.expander("Suggested meeting flow"):
