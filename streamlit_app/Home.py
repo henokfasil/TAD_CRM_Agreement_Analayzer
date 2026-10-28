@@ -101,6 +101,9 @@ pages = {
         st.Page("pages/10_Ask_the_Database.py", title="Ask the database", icon="💬"),
         st.Page("pages/11_Reports_and_Exports.py", title="Reports & exports", icon="📤"),
     ],
+    "Meeting room": [
+        st.Page("pages/13_Presentation.py", title="Studio presentation", icon="🎬"),
+    ],
     "Administration": [
         st.Page("pages/12_Admin_and_Codebook.py", title="Codebook & settings", icon="⚙️"),
     ],
