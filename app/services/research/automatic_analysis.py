@@ -22,6 +22,37 @@ from app.services.storage.persistent import load_records, upsert_record, uses_pe
 COLLECTION = "agreement_automatic_analyses"
 PROMPT_VERSION = "agreement_research_analysis_v1"
 ALLOWED_ANSWERS = {"Yes", "No", "Mixed", "Unclear"}
+LOCAL_EVIDENCE_TERMS = {
+    "legal_bindingness": ["shall", "legally binding", "memorandum", "commitment"],
+    "institutions_monitoring": ["working group", "committee", "dialogue", "monitor", "review"],
+    "security_transition": ["energy transition", "security", "decarbon", "circular", "renewable"],
+    "investment_financing": ["investment", "financ", "fund", "capital", "bank"],
+    "esg": ["environment", "social", "governance", "labour", "indigenous", "sustainable"],
+    "trade": ["trade", "export", "import", "tariff", "barrier", "customs"],
+    "technology_research_skills": [
+        "technology",
+        "research",
+        "innovation",
+        "training",
+        "skills",
+        "knowledge",
+    ],
+    "local_value_addition": [
+        "local processing",
+        "value addition",
+        "value chain",
+        "refining",
+        "manufacturing",
+        "local content",
+    ],
+}
+KNOWN_PARTICIPANTS = {
+    "eu": "European Union",
+    "european union": "European Union",
+    "chile": "Chile",
+    "ukraine": "Ukraine",
+    "kazakhstan": "Kazakhstan",
+}
 
 
 def available_analysis_models(
@@ -213,6 +244,92 @@ def run_agreement_analysis(
         "prompt_version": PROMPT_VERSION,
         "prompt_tokens": response.prompt_tokens,
         "completion_tokens": response.completion_tokens,
+        "created_at": created_at,
+    }
+
+
+def run_local_evidence_scan(
+    document: dict[str, Any], question_map: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    """Build a conservative, exact-text fallback when no external model is available."""
+    mapping = question_map or load_question_map()
+    filename_text = re.sub(r"[_\-.]+", " ", str(document.get("original_filename", ""))).lower()
+    countries = []
+    for token, label in KNOWN_PARTICIPANTS.items():
+        if re.search(rf"\b{re.escape(token)}\b", filename_text) and label not in countries:
+            countries.append(label)
+
+    page_sentences: list[tuple[int, str]] = []
+    for page in document.get("pages", []):
+        page_number = int(page.get("page_number"))
+        for sentence in re.split(r"(?<=[.!?])\s+|\n+", str(page.get("text", ""))):
+            cleaned = " ".join(sentence.split()).strip()
+            if len(cleaned) >= 25:
+                page_sentences.append((page_number, cleaned))
+
+    answers = []
+    for question in mapping["questions"]:
+        question_id = question["id"]
+        if question_id == "participants":
+            names = countries
+            matches = [
+                (page, sentence)
+                for page, sentence in page_sentences
+                if any(name.casefold() in sentence.casefold() for name in names)
+            ][:2]
+            answer = "Yes" if names else "Unclear"
+            summary = (
+                f"The document title identifies these participants: {', '.join(names)}."
+                if names
+                else "The local scan could not reliably identify the participants."
+            )
+        else:
+            terms = LOCAL_EVIDENCE_TERMS.get(question_id, [])
+            matches = [
+                (page, sentence)
+                for page, sentence in page_sentences
+                if any(term in sentence.casefold() for term in terms)
+            ][:3]
+            answer = "Yes" if matches else "Unclear"
+            summary = (
+                f"The local evidence scan found language relevant to {question['question'].lower()}"
+                if matches
+                else "No reliable finding was produced by the local evidence scan; semantic analysis is required."
+            )
+        answers.append(
+            {
+                "question_id": question_id,
+                "question": question["question"],
+                "answer": answer,
+                "summary": summary,
+                "confidence": 0.55 if matches else 0.15,
+                "reasoning": "Conservative keyword evidence scan; human review required.",
+                "evidence": [
+                    {"page": page, "quote": sentence} for page, sentence in matches
+                ],
+                "rejected_quotes": 0,
+            }
+        )
+
+    created_at = datetime.now(timezone.utc).isoformat()
+    return {
+        "analysis_id": f"{document['document_id']}:{created_at}",
+        "document_id": document["document_id"],
+        "document_filename": document.get("original_filename"),
+        "status": "provisional",
+        "profile": {
+            "title": document.get("original_filename", ""),
+            "countries": [name for name in countries if name != "European Union"],
+            "organisations": [name for name in countries if name == "European Union"],
+            "agreement_date": "",
+            "bindingness": "unclear",
+        },
+        "answers": answers,
+        "model_name": "local-evidence-scan-v1",
+        "model_provider": "local",
+        "prompt_version": "local_evidence_scan_v1",
+        "prompt_tokens": 0,
+        "completion_tokens": 0,
         "created_at": created_at,
     }
 

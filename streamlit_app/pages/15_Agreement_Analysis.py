@@ -147,7 +147,14 @@ else:
                     analysis_service.save_agreement_analysis(analysis)
                     status.update(label="Analysis saved and ready for human review", state="complete")
             except (ExternalLLMDisabledError, ExternalLLMRequestError, ValueError) as exc:
-                st.error(str(exc))
+                st.warning(f"External AI was unavailable: {exc}")
+                analysis = analysis_service.run_local_evidence_scan(selected_document)
+                analysis_service.save_agreement_analysis(analysis)
+                st.info(
+                    "A conservative local evidence scan was saved instead. Its lower-confidence "
+                    "results are clearly labelled and still require human review."
+                )
+                st.rerun()
             except Exception as exc:
                 st.error(f"The agreement analysis could not be completed: {exc}")
             else:

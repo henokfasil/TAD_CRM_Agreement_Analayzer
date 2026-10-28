@@ -6,6 +6,7 @@ from app.services.research.automatic_analysis import (
     _normalise_result,
     latest_analysis_by_document,
     load_agreement_analyses,
+    run_local_evidence_scan,
     save_agreement_analysis,
 )
 from app.services.research.answer_sheet import build_answer_sheet, load_question_map
@@ -100,3 +101,17 @@ def test_analysis_roundtrip_and_answer_sheet_integration() -> None:
     )
     assert answers[0]["answer"] == "Yes"
     assert answers[0]["evidence"][0]["page"] == 1
+
+
+def test_local_evidence_scan_produces_conservative_page_linked_results() -> None:
+    result = run_local_evidence_scan(_document())
+
+    assert len(result["answers"]) == 9
+    assert result["model_provider"] == "local"
+    participants = result["answers"][0]
+    assert participants["answer"] == "Unclear"
+    institutions = next(
+        answer for answer in result["answers"] if answer["question_id"] == "institutions_monitoring"
+    )
+    assert institutions["answer"] == "Yes"
+    assert institutions["evidence"][0]["page"] == 1
