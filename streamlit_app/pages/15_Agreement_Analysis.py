@@ -25,7 +25,10 @@ from streamlit_app.ui import page_header, stat_cards, workflow_navigation  # noq
 
 
 sync_streamlit_secrets_to_env()
-if os.environ.get("GEMINI_MODEL", "").strip().lower() == "gemini-3.5-flash":
+if os.environ.get("GEMINI_MODEL", "").strip().lower() in {
+    "gemini-3.5-flash",
+    "gemini-flash-latest",
+}:
     os.environ["GEMINI_MODEL"] = "gemini-2.5-flash"
 get_settings.cache_clear()
 settings = get_settings()
@@ -47,7 +50,8 @@ models = available_analysis_models()
 models = {
     key: (
         model.model_copy(update={"model_name": "gemini-2.5-flash"})
-        if model.provider == "gemini" and model.model_name == "gemini-3.5-flash"
+        if model.provider == "gemini"
+        and model.model_name in {"gemini-3.5-flash", "gemini-flash-latest"}
         else model
     )
     for key, model in models.items()
