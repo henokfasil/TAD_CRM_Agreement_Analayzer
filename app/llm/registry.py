@@ -12,7 +12,7 @@ from app.llm.providers.openai_compatible import OpenAICompatibleProvider
 from app.schemas.llm import ModelConfig, ModelRegistry
 
 
-DEFAULT_GEMINI_MODEL = "gemini-flash-latest"
+DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 RETIRED_GEMINI_MODELS = {
     "gemini-1.0-pro",
     "gemini-1.5-flash",
