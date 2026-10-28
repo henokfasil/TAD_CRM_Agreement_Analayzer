@@ -109,6 +109,7 @@ else:
                 f"{configured_models[key].provider} · {configured_models[key].model_name}"
             ),
         )
+        st.caption("The model alias is resolved to a currently supported provider endpoint.")
         button_label = "Re-analyse agreement" if current else "Analyse agreement"
         if st.button(
             button_label,
