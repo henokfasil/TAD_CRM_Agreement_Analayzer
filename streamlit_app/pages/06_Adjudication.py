@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from html import escape
+from importlib import reload
 from pathlib import Path
 
 import streamlit as st
@@ -23,6 +24,7 @@ from app.services.research.answer_sheet import (  # noqa: E402
     save_agreement_approval,
     save_question_review,
 )
+from app.services.research import answer_sheet as answer_sheet_service  # noqa: E402
 from app.services.research.automatic_analysis import load_agreement_analyses  # noqa: E402
 from app.services.review.adjudication import (  # noqa: E402
     adjudications_to_csv,
@@ -32,6 +34,9 @@ from app.services.review.adjudication import (  # noqa: E402
 )
 from app.services.review.manual_coding import load_manual_decisions  # noqa: E402
 from streamlit_app.ui import page_header, stat_cards, workflow_navigation  # noqa: E402
+
+answer_sheet_service = reload(answer_sheet_service)
+build_answer_sheet = answer_sheet_service.build_answer_sheet
 
 
 page_header(
