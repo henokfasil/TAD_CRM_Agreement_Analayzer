@@ -55,7 +55,7 @@ def render_home() -> None:
     stat_cards(
         [
             ("Saved agreements", workspace_count, "Persisted source documents"),
-            ("Workflow", "6 steps", "From discovery to comparison"),
+            ("Workflow", "4 steps", "Upload, analyse, review, compare"),
             ("Review model", "Human-led", "AI suggestions remain provisional"),
             ("Research variables", len(codebook.variables), "Defined in the active codebook"),
         ]
@@ -67,8 +67,8 @@ def render_home() -> None:
         """
         <div class="crm-flow">
             <div class="crm-flow-card"><span class="crm-flow-number">1</span><h3>Bring the source in</h3><p>Upload the official PDF. OCR quietly recovers text from scanned pages.</p></div>
-            <div class="crm-flow-card"><span class="crm-flow-number">2</span><h3>Read, classify, and verify</h3><p>Review provisions, assign research categories, and test every claim against evidence.</p></div>
-            <div class="crm-flow-card"><span class="crm-flow-number">3</span><h3>Finalise and compare</h3><p>Resolve uncertain results, then compare agreements and export defensible data.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">2</span><h3>Analyse the agreement</h3><p>Generate nine provisional answers with page-level quotations and participant metadata.</p></div>
+            <div class="crm-flow-card"><span class="crm-flow-number">3</span><h3>Review and compare</h3><p>Validate the evidence, approve the profile, then compare agreements and produce research outputs.</p></div>
         </div>
         """,
         unsafe_allow_html=True,
@@ -88,18 +88,21 @@ pages = {
         st.Page("pages/01_Dashboard.py", title="Dashboard", icon="📊"),
     ],
     "Research workflow": [
-        st.Page("pages/04_Discovery_Queue.py", title="1 · Discover agreements", icon="🔎"),
-        st.Page("pages/03_New_Document_Ingestion.py", title="2 · Upload agreements", icon="📄"),
-        st.Page("pages/02_Agreement_Explorer.py", title="3 · Review & structure", icon="🧭"),
-        st.Page("pages/05_Coding_Review.py", title="4 · Classify & verify", icon="🏷️"),
-        st.Page("pages/06_Adjudication.py", title="5 · Final review", icon="✅"),
+        st.Page("pages/03_New_Document_Ingestion.py", title="1 · Upload agreements", icon="📄"),
+        st.Page("pages/15_Agreement_Analysis.py", title="2 · Analyse agreements", icon="🧠"),
+        st.Page("pages/06_Adjudication.py", title="3 · Review findings", icon="✅"),
+        st.Page("pages/07_Comparison_Tool.py", title="4 · Compare & report", icon="⚖️"),
     ],
     "Analysis & outputs": [
-        st.Page("pages/07_Comparison_Tool.py", title="6 · Compare agreements", icon="⚖️"),
         st.Page("pages/08_Network_Analysis.py", title="Network analysis", icon="🕸️"),
         st.Page("pages/09_Implementation_Tracker.py", title="Implementation tracker", icon="📅"),
         st.Page("pages/10_Ask_the_Database.py", title="Ask the database", icon="💬"),
         st.Page("pages/11_Reports_and_Exports.py", title="Reports & exports", icon="📤"),
+    ],
+    "Advanced research controls": [
+        st.Page("pages/04_Discovery_Queue.py", title="Discovery queue", icon="🔎"),
+        st.Page("pages/02_Agreement_Explorer.py", title="Extracted pages & profiles", icon="🧭"),
+        st.Page("pages/05_Coding_Review.py", title="Detailed coding & verification", icon="🏷️"),
     ],
     "Research production": [
         st.Page("pages/14_Research_Engine.py", title="Research engine", icon="🧠"),

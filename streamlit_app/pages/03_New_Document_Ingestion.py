@@ -31,7 +31,7 @@ from streamlit_app.ui import page_header, workflow_navigation
 page_header(
     "Upload agreements",
     "Add PDF agreements, recover scanned text with OCR, and confirm that the text is readable.",
-    eyebrow="Step 2 of 6",
+    eyebrow="Step 1 of 4",
 )
 sync_streamlit_secrets_to_env()
 settings = get_settings()
@@ -232,10 +232,9 @@ has_readable_agreement = any(
     for record in records
 )
 workflow_navigation(
-    previous=("Discover agreements", "pages/04_Discovery_Queue.py"),
-    next_step=("Review & structure", "pages/02_Agreement_Explorer.py"),
+    next_step=("Analyse agreements", "pages/15_Agreement_Analysis.py"),
     note=(
-        "At least one saved agreement has readable text and is ready for review."
+        "At least one saved agreement has readable text and is ready for analysis."
         if has_readable_agreement
         else (
             "Files are saved, but readable text is still needed before review."

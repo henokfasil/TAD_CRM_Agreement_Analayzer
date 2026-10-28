@@ -15,6 +15,7 @@ from app.services.review.manual_coding import load_manual_decisions
 from app.services.agreements.profiles import load_agreement_profiles
 from app.services.classification.ai_coding import load_ai_coding_proposals
 from app.services.review.adjudication import load_adjudication_decisions
+from app.services.research.automatic_analysis import load_agreement_analyses
 from app.services.verification.ai_verification import load_verification_results
 from streamlit_app.ui import bar_panel, page_header, stat_cards
 
@@ -29,6 +30,7 @@ profiles = load_agreement_profiles()
 ai_proposals = load_ai_coding_proposals()
 verification_results = load_verification_results()
 adjudications = load_adjudication_decisions()
+automatic_analyses = load_agreement_analyses()
 summary = build_workspace_summary(records, decisions, profiles, ai_proposals, verification_results, adjudications)
 
 st.markdown(
@@ -53,7 +55,7 @@ st.markdown(
 stat_cards(
     [
         ("Manual classifications", summary["manual_coding_decisions"], "Values entered by reviewers"),
-        ("AI suggestions", summary["ai_coding_proposals"], "Provisional, never automatically final"),
+        ("Agreement analyses", len(automatic_analyses), "Nine-question AI runs awaiting review"),
         ("Verification checks", summary["verification_results"], "Evidence and consistency checks"),
         ("Agreement profiles", summary["agreement_profiles"], "Structured agreement-level records"),
     ]
@@ -61,8 +63,8 @@ stat_cards(
 
 if not records:
     st.info("Upload and extract an agreement to begin populating this dashboard.")
-elif not decisions:
-    st.info("Your documents are ready. Classify a provision in Step 4 to begin the review charts.")
+elif not automatic_analyses:
+    st.info("Your documents are ready. Analyse an agreement in Step 2 to prepare its research answers.")
 
 chart_left = bar_panel(
     "Reviewer status",

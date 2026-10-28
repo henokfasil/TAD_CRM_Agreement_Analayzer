@@ -235,6 +235,7 @@ def build_answer_sheet(
     manual_decisions: list[dict[str, Any]],
     ai_proposals: list[dict[str, Any]],
     reviews: list[dict[str, Any]],
+    automatic_analyses: list[dict[str, Any]] | None = None,
     question_map: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     mapping = question_map or load_question_map()
@@ -258,6 +259,22 @@ def build_answer_sheet(
         row["question_id"]: row
         for row in reviews
         if row.get("document_id") == document_id
+    }
+    latest_analysis = next(
+        (
+            row
+            for row in sorted(
+                automatic_analyses or [],
+                key=lambda item: item.get("created_at", ""),
+                reverse=True,
+            )
+            if row.get("document_id") == document_id
+        ),
+        None,
+    )
+    automatic_answers = {
+        row.get("question_id"): row
+        for row in (latest_analysis or {}).get("answers", [])
     }
     answers = []
     for question in mapping["questions"]:
@@ -283,7 +300,21 @@ def build_answer_sheet(
 
         proposed_answer = "Not reviewed"
         summary = "No coded evidence is available for this question yet."
-        if question_id == "participants":
+        automatic_confidence = None
+        automatic = automatic_answers.get(question_id)
+        if automatic:
+            proposed_answer = automatic.get("answer", "Unclear")
+            summary = automatic.get("summary") or "The automatic analysis was inconclusive."
+            automatic_confidence = automatic.get("confidence")
+            for item in automatic.get("evidence", []):
+                evidence.append(
+                    {
+                        "page": item.get("page"),
+                        "quote": item.get("quote", ""),
+                        "variable": "Automatic agreement analysis",
+                    }
+                )
+        elif question_id == "participants":
             countries = list((profile or {}).get("countries") or [])
             organisations = list((profile or {}).get("organisations") or [])
             if countries or organisations:
@@ -329,6 +360,7 @@ def build_answer_sheet(
                 else "provisional",
                 "evidence": evidence,
                 "variables": used,
+                "automatic_confidence": automatic_confidence,
             }
         )
     return answers

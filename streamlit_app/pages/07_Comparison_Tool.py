@@ -19,7 +19,7 @@ comparison_service = reload(comparison_service)
 page_header(
     "Compare agreements",
     "Compare uploaded agreements now, then refine the view as classifications are reviewed.",
-    eyebrow="Step 6 of 6",
+    eyebrow="Step 4 of 4",
 )
 
 records = load_document_records()
@@ -151,6 +151,6 @@ else:
                 )
 
 workflow_navigation(
-    previous=("Final review", "pages/06_Adjudication.py"),
-    note="This is the final numbered workflow step. Document comparison starts with two uploads; reviewed classifications deepen it.",
+    previous=("Review findings", "pages/06_Adjudication.py"),
+    note="This is the final workflow step. Approved research profiles provide the validated comparison layer.",
 )

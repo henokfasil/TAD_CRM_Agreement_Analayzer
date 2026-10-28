@@ -23,6 +23,7 @@ from app.services.research.answer_sheet import (  # noqa: E402
     save_agreement_approval,
     save_question_review,
 )
+from app.services.research.automatic_analysis import load_agreement_analyses  # noqa: E402
 from app.services.review.adjudication import (  # noqa: E402
     adjudications_to_csv,
     build_adjudication_decision,
@@ -34,9 +35,9 @@ from streamlit_app.ui import page_header, stat_cards, workflow_navigation  # noq
 
 
 page_header(
-    "Final review",
-    "Turn detailed classifications into nine evidence-linked answers, then approve the agreement research profile.",
-    eyebrow="Step 5 of 6",
+    "Review findings",
+    "Review nine automatically prepared, evidence-linked answers and approve the agreement research profile.",
+    eyebrow="Step 3 of 4",
 )
 st.caption(
     "The answer sheet is the readable research product. Detailed variable adjudication remains "
@@ -51,6 +52,7 @@ ai_proposals = load_ai_coding_proposals()
 adjudications = load_adjudication_decisions()
 question_reviews = load_question_reviews()
 agreement_approvals = load_agreement_approvals()
+automatic_analyses = load_agreement_analyses()
 
 tab_profile, tab_detail, tab_saved = st.tabs(
     ["Agreement answer sheet", "Detailed decisions", "Saved final decisions"]
@@ -80,6 +82,7 @@ with tab_profile:
             manual_decisions=manual_decisions,
             ai_proposals=ai_proposals,
             reviews=question_reviews,
+            automatic_analyses=automatic_analyses,
         )
         validated_count = sum(
             answer["validation_status"] == "validated" for answer in answers
@@ -148,6 +151,11 @@ with tab_profile:
                     else "Provisional synthesis — human review required"
                 )
                 st.caption(status_text)
+                if answer.get("automatic_confidence") is not None:
+                    st.caption(
+                        f"Automatic-analysis confidence: "
+                        f"{float(answer['automatic_confidence']):.0%} · still requires human review"
+                    )
                 st.markdown(f"**Current synthesis:** {answer['summary']}")
 
                 if answer["evidence"]:
@@ -157,8 +165,8 @@ with tab_profile:
                         st.markdown(f"> Page {page} · {item['variable']}: “{item['quote']}”")
                 else:
                     st.info(
-                        "No page quotation is attached yet. A final positive claim should normally "
-                        "be supported by evidence from Step 4."
+                        "No page quotation is attached yet. Re-run the automatic analysis or use "
+                        "the advanced coding tools before validating a positive claim."
                     )
 
                 if answer["variables"]:
@@ -318,7 +326,7 @@ with tab_saved:
             st.dataframe(agreement_approvals, width="stretch", hide_index=True)
 
 workflow_navigation(
-    previous=("Classify & verify", "pages/05_Coding_Review.py"),
+    previous=("Analyse agreements", "pages/15_Agreement_Analysis.py"),
     next_step=("Compare agreements", "pages/07_Comparison_Tool.py"),
     note="Final comparisons should use complete, human-approved agreement profiles.",
 )
