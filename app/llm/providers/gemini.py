@@ -48,9 +48,10 @@ class GeminiProvider:
             data = response.json()
         except httpx.HTTPStatusError as exc:
             status_code = exc.response.status_code
+            detail = _safe_error_detail(exc.response, self.api_key)
             raise ExternalLLMRequestError(
                 f"Gemini request failed with HTTP {status_code}. "
-                "Check GEMINI_API_KEY, GEMINI_MODEL, and Gemini API access."
+                f"{detail or 'Check GEMINI_API_KEY, GEMINI_MODEL, and Gemini API access.'}"
             ) from exc
         except httpx.HTTPError as exc:
             raise ExternalLLMRequestError(
@@ -113,3 +114,14 @@ def _parse_json_object(content: str) -> dict[str, Any] | None:
     if isinstance(parsed, dict):
         return parsed
     return None
+
+
+def _safe_error_detail(response: httpx.Response, api_key: str | None) -> str:
+    try:
+        payload = response.json()
+        message = str((payload.get("error") or {}).get("message") or "")
+    except (ValueError, AttributeError):
+        message = ""
+    if api_key:
+        message = message.replace(api_key, "[redacted]")
+    return " ".join(message.split())[:400]
