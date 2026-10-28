@@ -53,7 +53,8 @@ with st.expander("Suggested meeting flow"):
         """
         1. Present through slide 7 in approximately six minutes.
         2. Use the live Studio for a five-minute demonstration after slide 7.
-        3. Return to slides 8–10 for the research-engine goal, roadmap, decision, and discussion.
+        3. Return to slides 8–11 for the research-engine goal, roadmap, decision, and future agent.
+        4. Use Appendix A–B when discussing methodology, AI tools, and implementation details.
 
         The deck deliberately distinguishes validated research from provisional AI output.
         """
