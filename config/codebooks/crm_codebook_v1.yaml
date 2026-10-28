@@ -582,3 +582,34 @@ variables:
     data_type: binary
     allowed_values: [0, 1]
 
+  - code: local_processing
+    family: local_value_addition
+    label: Local mineral processing
+    description: Records commitments to process or beneficiate extracted raw materials in the producing country or region.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: local_refining
+    family: local_value_addition
+    label: Local refining
+    description: Records commitments supporting domestic or regional refining, separation, or purification capacity.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: local_manufacturing
+    family: local_value_addition
+    label: Downstream manufacturing
+    description: Records commitments to manufacture intermediate or finished CRM-related products locally or regionally.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: local_content
+    family: local_value_addition
+    label: Local content and supplier participation
+    description: Records local procurement, supplier development, employment, or domestic-content commitments.
+    data_type: binary
+    allowed_values: [0, 1]
+  - code: local_value_addition
+    family: local_value_addition
+    label: Local value addition
+    description: Records an explicit objective to retain more value from CRM activities in the producing country or region.
+    data_type: binary
+    allowed_values: [0, 1]
+

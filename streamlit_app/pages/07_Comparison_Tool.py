@@ -9,6 +9,7 @@ from app.services.ingestion.workspace import load_document_records
 from app.services.reporting import comparison as comparison_service
 from app.services.review.adjudication import load_adjudication_decisions
 from app.services.review.manual_coding import load_manual_decisions
+from app.services.research.answer_sheet import load_agreement_approvals, load_question_reviews
 from streamlit_app.ui import page_header, workflow_navigation
 
 # Streamlit Cloud may rerun a page in a worker that still holds the previous
@@ -38,8 +39,8 @@ else:
     selected_records = [record for record in records if record["document_id"] in selected_ids]
     selected_overview = [row for row in overview_rows if row["document_id"] in selected_ids]
 
-    tab_text, tab_overview, tab_classifications = st.tabs(
-        ["Text & themes", "Document facts", "Research classifications"]
+    tab_text, tab_overview, tab_questions, tab_classifications = st.tabs(
+        ["Text & themes", "Document facts", "Nine research questions", "Detailed classifications"]
     )
     with tab_text:
         if len(selected_records) < 2:
@@ -49,7 +50,7 @@ else:
             st.subheader("What the agreements discuss")
             st.dataframe(
                 text_comparison["themes"],
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
             st.caption(
@@ -77,7 +78,7 @@ else:
             st.subheader("Overall textual overlap")
             st.dataframe(
                 text_comparison["pairwise"],
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
             with st.expander("Distinctive terms in each agreement"):
@@ -93,12 +94,30 @@ else:
                     {key: value for key, value in row.items() if key != "document_id"}
                     for row in selected_overview
                 ],
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
             )
             st.caption(
                 "These document facts are available immediately from the uploaded documents. "
                 "Candidate-provision counts are machine-generated and remain provisional."
+            )
+
+    with tab_questions:
+        research_rows = comparison_service.build_research_question_comparison(
+            selected_records,
+            load_question_reviews(),
+            load_agreement_approvals(),
+        )
+        if research_rows:
+            st.subheader("Validated agreement-level answers")
+            st.dataframe(research_rows, width="stretch", hide_index=True)
+            st.caption(
+                "Only whole-profile-approved agreements appear as validated answers here."
+            )
+        else:
+            st.info(
+                "No complete agreement research profiles are approved yet. Review all nine "
+                "questions in Step 5, then approve each whole profile."
             )
 
     with tab_classifications:
@@ -121,7 +140,7 @@ else:
             )
             display_rows = shared_rows if show_shared_only else comparison_rows
             if display_rows:
-                st.dataframe(display_rows, use_container_width=True, hide_index=True)
+                st.dataframe(display_rows, width="stretch", hide_index=True)
                 st.caption(
                     "Status distinguishes AI proposals, manual classifications, and "
                     "human-approved results. Human-approved values take precedence."

@@ -1,0 +1,30 @@
+version: question-map-v1
+questions:
+  - id: participants
+    question: Which countries and organisations participate?
+    source: agreement_profile
+  - id: legal_bindingness
+    question: Is the agreement legally binding or mainly political cooperation?
+    source: profile_and_coding
+    variable_codes: [enforceability_levels, DSM_type, compliance_measures]
+  - id: institutions_monitoring
+    question: What institutions or monitoring mechanisms does it establish?
+    variable_codes: [actplans_rdmps, mech_work_group, mech_committee, mech_dialogue, mech_stakeholder, monitor_activities, monitor_activities_progress]
+  - id: security_transition
+    question: Does it address economic security or the energy transition?
+    variable_codes: [nonmarket_practices, state_sup, dist_price, monopoly, sec_energy, decarbonisation, circularity, efficiency, ener_trans_ind]
+  - id: investment_financing
+    question: What does it say about investment and financing?
+    variable_codes: [inv_gen_ref, inv_crm, inv_basic_def, inv_spec_def, com_pub, com_priv, com_spec_fund, fac_gen_ref, fac_crm, screen_gen_ref, screen_crm]
+  - id: esg
+    question: Does it contain environmental, social, and governance commitments?
+    variable_codes: [esg_gen_ref, esg_crm, esg_basic_def, esg_spec_def, lab_rights, lab_health_com, soclab_local, soclab_indig, tran_gen_ref, tran_crm, tran_due_diligence, tran_anticor, env_gen_ref, env_crm, env_pollution, env_degradation]
+  - id: trade
+    question: Are trade measures or trade barriers discussed?
+    variable_codes: [ti_gen_ref, ti_crm, ti_basic_def, ti_spec_def, exp_quota_gen_ref, exp_quota_crm, exp_tax_gen_ref, exp_tax_crm, exp_lic_gen_ref, exp_lic_crm, imp_res_gen_ref, imp_res_crm, price_gen_ref, price_crm]
+  - id: technology_research_skills
+    question: Does it support technology transfer, research, skills, or training?
+    variable_codes: [ttrt_gen_ref, ttrt_crm, ttrt_basic_def, ttrt_spec_def, res_gen_ref, res_crm, res_sup_spec, tech_gen_ref, tech_crm, tech_sup_spec, train_gen_ref, train_crm, train_high_low, train_sup_spec]
+  - id: local_value_addition
+    question: Does it encourage local processing and value addition?
+    variable_codes: [local_processing, local_refining, local_manufacturing, local_content, local_value_addition]

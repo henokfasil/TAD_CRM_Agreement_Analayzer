@@ -6,6 +6,7 @@ import re
 from typing import Any
 
 from app.services.segmentation.basic import segment_document_pages
+from app.services.research.answer_sheet import load_question_map
 
 THEMES = {
     "Raw-material value chains": ("raw material", "critical mineral", "value chain"),
@@ -178,3 +179,41 @@ def build_classification_comparison(
 def shared_classification_summary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     counts = Counter(str(row["variable"]) for row in rows)
     return [row for row in rows if counts[str(row["variable"])] > 1]
+
+
+def build_research_question_comparison(
+    records: list[dict[str, Any]],
+    question_reviews: list[dict[str, Any]],
+    approvals: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Compare the nine validated answers for whole-profile-approved agreements."""
+    filenames = {record["document_id"]: record["original_filename"] for record in records}
+    approved_ids = {
+        approval.get("document_id")
+        for approval in approvals
+        if approval.get("validation_status") == "approved"
+    }
+    reviews = {
+        (review.get("document_id"), review.get("question_id")): review
+        for review in question_reviews
+        if review.get("document_id") in approved_ids
+        and review.get("validation_status") == "validated"
+    }
+    rows = []
+    for question in load_question_map()["questions"]:
+        row: dict[str, Any] = {"Research question": question["question"]}
+        has_answer = False
+        for document_id, filename in filenames.items():
+            review = reviews.get((document_id, question["id"]))
+            if review:
+                row[filename] = (
+                    f"{review['final_answer']} — {review['final_summary']}"
+                )
+                has_answer = True
+            elif document_id in approved_ids:
+                row[filename] = "Approved profile is missing this answer"
+            else:
+                row[filename] = "Not approved"
+        if has_answer:
+            rows.append(row)
+    return rows
