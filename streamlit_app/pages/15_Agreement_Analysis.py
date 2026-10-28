@@ -44,6 +44,14 @@ documents = load_document_records()
 analyses = load_agreement_analyses()
 latest = latest_analysis_by_document(analyses)
 models = available_analysis_models()
+models = {
+    key: (
+        model.model_copy(update={"model_name": "gemini-flash-latest"})
+        if model.provider == "gemini" and model.model_name == "gemini-3.5-flash"
+        else model
+    )
+    for key, model in models.items()
+}
 
 if not documents:
     st.info("Upload an agreement before running research analysis.")
@@ -124,6 +132,10 @@ else:
                 with st.status("Reading the agreement and answering nine questions…", expanded=True) as status:
                     st.write("Preparing page-labelled agreement text")
                     st.write("Extracting participants and agreement metadata")
+                    selected_model = configured_models[selected_model_key]
+                    if selected_model.provider == "gemini":
+                        os.environ["GEMINI_MODEL"] = selected_model.model_name
+                        get_settings.cache_clear()
                     analysis = run_agreement_analysis(selected_document, selected_model_key)
                     st.write("Checking every quotation against the saved pages")
                     save_agreement_analysis(analysis)
