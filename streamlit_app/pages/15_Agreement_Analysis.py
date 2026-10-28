@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -24,6 +25,8 @@ from streamlit_app.ui import page_header, stat_cards, workflow_navigation  # noq
 
 
 sync_streamlit_secrets_to_env()
+if os.environ.get("GEMINI_MODEL", "").strip().lower() == "gemini-3.5-flash":
+    os.environ["GEMINI_MODEL"] = "gemini-flash-latest"
 get_settings.cache_clear()
 settings = get_settings()
 
