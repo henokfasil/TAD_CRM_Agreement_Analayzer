@@ -1,0 +1,77 @@
+version: report-spec-v1
+title: CRM agreement research engine specification
+reference_report:
+  title: Towards a better understanding of recent international agreements concerning critical raw materials
+  document: CRM Agreements.pdf
+  cutoff_date: 2026-02-28
+objective: >-
+  Generate reproducible, evidence-linked comparative research reports from the validated
+  agreement corpus. Published-paper figures are reference outputs, not templates to copy.
+publication_rules:
+  default_record_status: validated
+  require_page_evidence_for_coded_claims: true
+  distinguish_provisional_results: true
+  expose_underlying_data: true
+  record_corpus_cutoff: true
+  record_codebook_version: true
+outputs:
+  - interactive HTML research report
+  - publication-ready PDF
+  - editable Word report
+  - Excel analytical tables
+  - CSV and JSON research package
+  - evidence and methods manifest
+analysis_registry:
+  - id: participation.timeline_and_type
+    reference: Figure 2.1
+    title: Agreement activity over time and by instrument type
+    purpose: Analyse how the volume and legal form of CRM cooperation evolve.
+    required_fields: [agreement_type, reporting_date]
+    minimum_records: 1
+    status: foundation
+  - id: participation.country_frequency
+    reference: Figure 2.2
+    title: Participation frequency by country
+    purpose: Compare how often countries participate across bilateral and plurilateral agreements.
+    required_fields: [participants]
+    minimum_records: 1
+    status: foundation
+  - id: participation.partner_groups
+    reference: Figure 2.3A
+    title: Partner-group participation over time
+    purpose: Analyse participation by policy-relevant country group using versioned classifications.
+    required_fields: [reporting_date, participants, g7_participation, global_south_participation]
+    minimum_records: 1
+    status: foundation
+  - id: participation.supply_chain_pairs
+    reference: Figure 2.3B
+    title: Producer and consumer partnership patterns
+    purpose: Compare supply-chain partner configurations using sourced, time-specific classifications.
+    required_fields: [reporting_date, participants, producer_consumer_pair]
+    minimum_records: 1
+    status: foundation
+  - id: legal_institutional_design
+    reference: Section 3.1
+    title: Legal, institutional, implementation and monitoring design
+    purpose: Aggregate validated legal and institutional classifications.
+    required_fields: [bindingness_status, validated_coding]
+    minimum_records: 1
+    status: planned
+  - id: thematic_content
+    reference: Section 3.2
+    title: Investment, ESG, trade, economic security, energy transition and TTRT
+    purpose: Aggregate validated thematic classifications and comprehensiveness indicators.
+    required_fields: [validated_coding]
+    minimum_records: 1
+    status: planned
+report_sections:
+  - Executive summary
+  - Introduction, background and objectives
+  - Corpus and participation patterns
+  - Legal and institutional design
+  - Thematic content
+  - Conclusions
+  - Methods and limitations
+  - Agreement inventory
+  - Coding themes
+  - Evidence manifest

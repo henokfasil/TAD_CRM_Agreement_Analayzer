@@ -20,6 +20,14 @@ def test_agreement_profile_roundtrip_and_document_link() -> None:
         short_title="CMP",
         agreement_type="MoU",
         parties="A; B",
+        countries=["A", "B"],
+        organisations=["Regional organisation"],
+        bindingness_status="non-binding",
+        g7_participation="yes",
+        global_south_participation="yes",
+        producer_consumer_pair="producer-consumer",
+        validation_status="validated",
+        metadata_sources="Official agreement text",
     )
 
     save_agreement_profile(profile, db_path)
@@ -29,6 +37,9 @@ def test_agreement_profile_roundtrip_and_document_link() -> None:
     links = load_agreement_document_links(db_path)
 
     assert profiles[0]["canonical_title"] == "Critical Minerals Partnership"
+    assert profiles[0]["countries"] == ["A", "B"]
+    assert profiles[0]["organisations"] == ["Regional organisation"]
+    assert profiles[0]["producer_consumer_pair"] == "producer-consumer"
     assert links[0]["document_id"] == "doc1"
     assert "Critical Minerals Partnership" in agreement_profiles_to_csv(profiles)
 

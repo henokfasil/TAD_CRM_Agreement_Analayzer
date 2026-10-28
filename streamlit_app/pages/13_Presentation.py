@@ -37,7 +37,7 @@ with download_column:
         data=presentation_html,
         file_name="crm_agreement_studio_presentation.html",
         mime="text/html",
-        use_container_width=True,
+        width="stretch",
     )
 with help_column:
     st.info("Click inside the deck, then use **← →**. Press **N** for notes or **F** for fullscreen.")
@@ -51,9 +51,9 @@ st.iframe(
 with st.expander("Suggested meeting flow"):
     st.markdown(
         """
-        1. Present slides 1–7 in approximately six minutes.
-        2. Use the live Studio for the five-minute demonstration on slide 8.
-        3. Return to slides 9–10 for the roadmap, proposed next step, and discussion.
+        1. Present through slide 7 in approximately six minutes.
+        2. Use the live Studio for a five-minute demonstration after slide 7.
+        3. Return to slides 8–10 for the research-engine goal, roadmap, decision, and discussion.
 
         The deck deliberately distinguishes validated research from provisional AI output.
         """

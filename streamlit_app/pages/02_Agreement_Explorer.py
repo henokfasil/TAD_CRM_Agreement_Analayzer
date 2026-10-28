@@ -39,7 +39,11 @@ st.caption(
 tab_documents, tab_profiles = st.tabs(["Documents and Provisions", "Agreement Profiles"])
 
 with tab_profiles:
-    st.subheader("Create Agreement Profile")
+    st.subheader("Create agreement profile")
+    st.caption(
+        "Research metadata is stored separately from the PDF so future analyses and reports "
+        "can be regenerated from a validated corpus. Separate multiple values with semicolons."
+    )
     with st.form("agreement_profile_form"):
         canonical_title = st.text_input("Canonical title")
         short_title = st.text_input("Short title")
@@ -47,10 +51,52 @@ with tab_profiles:
             "Agreement type",
             ["", "MoU", "partnership", "cooperation agreement", "trade agreement", "other"],
         )
-        parties = st.text_input("Parties / countries")
-        signature_date = st.text_input("Signature date")
+        countries_text = st.text_input("Participating countries", help="Semicolon-separated canonical country names.")
+        organisations_text = st.text_input(
+            "Participating organisations",
+            help="For example: European Union; African Union. Separate multiple values with semicolons.",
+        )
+        parties = st.text_input(
+            "Legacy party label",
+            help="Optional display text retained for compatibility with earlier profiles.",
+        )
+        date_column, entry_column = st.columns(2)
+        signature_date = date_column.text_input("Signature date", placeholder="YYYY-MM-DD")
+        entry_into_force_date = entry_column.text_input(
+            "Entry-into-force date", placeholder="YYYY-MM-DD"
+        )
+        legal_status = st.text_input("Legal status", placeholder="Treaty, MoU, joint statement…")
+        bindingness_status = st.selectbox(
+            "Bindingness",
+            ["unknown", "non-binding", "binding", "mixed or uncertain"],
+        )
+        group_column, south_column = st.columns(2)
+        g7_participation = group_column.selectbox(
+            "At least one G7 participant", ["unknown", "yes", "no"]
+        )
+        global_south_participation = south_column.selectbox(
+            "At least one Global South participant", ["unknown", "yes", "no"]
+        )
+        producer_consumer_pair = st.selectbox(
+            "Supply-chain partner profile",
+            [
+                "unknown",
+                "producer-consumer",
+                "producer-producer",
+                "consumer-consumer",
+                "hybrid or mixed",
+                "not applicable",
+            ],
+        )
         source_language = st.text_input("Source language", value="English")
         inclusion_status = st.selectbox("Inclusion status", ["pending", "included", "excluded", "uncertain"])
+        validation_status = st.selectbox(
+            "Metadata validation status", ["provisional", "in review", "validated"]
+        )
+        metadata_sources = st.text_area(
+            "Metadata sources",
+            help="Record authoritative sources used for dates, participant groups, and producer/consumer status.",
+        )
         notes = st.text_area("Notes")
         submitted = st.form_submit_button("Save agreement profile")
 
@@ -65,6 +111,18 @@ with tab_profiles:
                     signature_date=signature_date,
                     source_language=source_language,
                     inclusion_status=inclusion_status,
+                    legal_status=legal_status,
+                    bindingness_status=bindingness_status,
+                    entry_into_force_date=entry_into_force_date,
+                    countries=[item.strip() for item in countries_text.split(";") if item.strip()],
+                    organisations=[
+                        item.strip() for item in organisations_text.split(";") if item.strip()
+                    ],
+                    g7_participation=g7_participation,
+                    global_south_participation=global_south_participation,
+                    producer_consumer_pair=producer_consumer_pair,
+                    validation_status=validation_status,
+                    metadata_sources=metadata_sources,
                     notes=notes,
                 )
             )
