@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from importlib import reload
 from pathlib import Path
 
 import streamlit as st
@@ -13,18 +14,17 @@ if str(PROJECT_ROOT) not in sys.path:
 from app.core.config import get_settings  # noqa: E402
 from app.llm.errors import ExternalLLMDisabledError, ExternalLLMRequestError  # noqa: E402
 from app.services.ingestion.workspace import load_document_records  # noqa: E402
-from app.services.research.automatic_analysis import (  # noqa: E402
-    available_analysis_models,
-    latest_analysis_by_document,
-    load_agreement_analyses,
-    run_agreement_analysis,
-    save_agreement_analysis,
-)
+from app.llm.providers import gemini as gemini_provider_module  # noqa: E402
+from app.llm import registry as llm_registry_module  # noqa: E402
+from app.services.research import automatic_analysis as analysis_service  # noqa: E402
 from streamlit_app.runtime_config import sync_streamlit_secrets_to_env  # noqa: E402
 from streamlit_app.ui import page_header, stat_cards, workflow_navigation  # noqa: E402
 
 
 sync_streamlit_secrets_to_env()
+reload(gemini_provider_module)
+reload(llm_registry_module)
+analysis_service = reload(analysis_service)
 if os.environ.get("GEMINI_MODEL", "").strip().lower() in {
     "gemini-3.5-flash",
     "gemini-flash-latest",
@@ -44,9 +44,9 @@ st.caption(
 )
 
 documents = load_document_records()
-analyses = load_agreement_analyses()
-latest = latest_analysis_by_document(analyses)
-models = available_analysis_models()
+analyses = analysis_service.load_agreement_analyses()
+latest = analysis_service.latest_analysis_by_document(analyses)
+models = analysis_service.available_analysis_models()
 models = {
     key: (
         model.model_copy(update={"model_name": "gemini-2.5-flash"})
@@ -140,9 +140,11 @@ else:
                     if selected_model.provider == "gemini":
                         os.environ["GEMINI_MODEL"] = selected_model.model_name
                         get_settings.cache_clear()
-                    analysis = run_agreement_analysis(selected_document, selected_model_key)
+                    analysis = analysis_service.run_agreement_analysis(
+                        selected_document, selected_model_key
+                    )
                     st.write("Checking every quotation against the saved pages")
-                    save_agreement_analysis(analysis)
+                    analysis_service.save_agreement_analysis(analysis)
                     status.update(label="Analysis saved and ready for human review", state="complete")
             except (ExternalLLMDisabledError, ExternalLLMRequestError, ValueError) as exc:
                 st.error(str(exc))
