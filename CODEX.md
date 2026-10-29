@@ -426,6 +426,29 @@ uv run python -c "from pathlib import Path; from app.services.parsing.pdf import
 
 Result: `53`.
 
+## Current handoff — 29 October 2026
+
+This section supersedes older model names, workflow counts and test totals elsewhere in this
+historical log.
+
+- The primary visible workflow is now four steps: Upload agreements → Analyse agreements → Review
+  findings → Compare and report. Detailed coding pages remain advanced audit controls.
+- `app/services/research/automatic_analysis.py` prepares all nine comparative-mapping answers in one
+  structured request, validates quotations against extracted page text, and persists model/prompt
+  provenance.
+- `streamlit_app/pages/15_Agreement_Analysis.py` is the automatic analysis workspace.
+- `streamlit_app/pages/06_Adjudication.py` presents the nine-answer research profile for final human
+  review, rationale and approval.
+- Gemini model compatibility now targets `gemini-3.8-flash`; retired aliases map to that default.
+- Gemini requires a valid key and available prepayment credits. When unavailable, a labelled local
+  evidence scan supplies conservative, lower-confidence provisional answers so the workflow remains
+  demonstrable.
+- Neon PostgreSQL and private Neon Object Storage provide durable records and original-PDF storage.
+- The embedded presentation documents the methodology, implementation stack, research-engine end
+  goal and future governed agreement-tracking/email-notification agent.
+- Full test baseline: `44 passed` on Python 3.12.
+- Canonical product and engineering guidance is now in `AGENTS.md`.
+
 Streamlit on this Windows setup should be launched from the project folder with `python -m streamlit`
 rather than the direct `streamlit` console script:
 

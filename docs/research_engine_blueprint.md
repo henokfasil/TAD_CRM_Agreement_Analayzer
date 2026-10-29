@@ -45,5 +45,14 @@ must be calculated from the live corpus under a versioned analytical contract.
 5. Assemble narrative, methods and evidence manifests into exportable reports.
 6. Add scheduled corpus refresh and reproducible publication snapshots.
 
-The current implementation establishes the research specification, expanded agreement metadata,
-readiness assessment and a Studio page that makes gaps visible before analysis is published.
+## Current implementation status — 29 October 2026
+
+The operational prototype now persists original PDFs, extracts/OCRs page text, prepares a complete
+nine-question provisional agreement profile, verifies returned quotations against the source,
+supports human validation with rationale, and exposes agreement comparison. Gemini 3.8 Flash is
+configured as the hosted semantic-analysis provider; a conservative local evidence scan keeps the
+workflow usable if provider access or credits are unavailable.
+
+The next research-engine milestone is not to recreate fixed figures manually. It is to register
+deterministic indicators over approved profiles, render reusable charts, and assemble reproducible
+reports with methods, limitations and evidence manifests.
