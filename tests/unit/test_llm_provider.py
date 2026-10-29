@@ -176,8 +176,9 @@ def test_gemini_provider_sanitizes_http_errors_without_leaking_api_key() -> None
 
 
 def test_retired_gemini_model_names_map_to_current_default() -> None:
-    assert resolve_gemini_model_name("gemini-2.0-flash") == "gemini-2.5-flash"
-    assert resolve_gemini_model_name("gemini-3.5-flash") == "gemini-2.5-flash"
+    assert resolve_gemini_model_name("gemini-2.0-flash") == "gemini-3.8-flash"
+    assert resolve_gemini_model_name("gemini-2.5-flash") == "gemini-3.8-flash"
+    assert resolve_gemini_model_name("gemini-3.5-flash") == "gemini-3.8-flash"
 
 
 def json_from_request(request: httpx.Request) -> dict:

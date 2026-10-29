@@ -26,10 +26,11 @@ reload(gemini_provider_module)
 reload(llm_registry_module)
 analysis_service = reload(analysis_service)
 if os.environ.get("GEMINI_MODEL", "").strip().lower() in {
+    "gemini-2.5-flash",
     "gemini-3.5-flash",
     "gemini-flash-latest",
 }:
-    os.environ["GEMINI_MODEL"] = "gemini-2.5-flash"
+    os.environ["GEMINI_MODEL"] = "gemini-3.8-flash"
 get_settings.cache_clear()
 settings = get_settings()
 
@@ -49,9 +50,10 @@ latest = analysis_service.latest_analysis_by_document(analyses)
 models = analysis_service.available_analysis_models()
 models = {
     key: (
-        model.model_copy(update={"model_name": "gemini-2.5-flash"})
+        model.model_copy(update={"model_name": "gemini-3.8-flash"})
         if model.provider == "gemini"
-        and model.model_name in {"gemini-3.5-flash", "gemini-flash-latest"}
+        and model.model_name
+        in {"gemini-2.5-flash", "gemini-3.5-flash", "gemini-flash-latest"}
         else model
     )
     for key, model in models.items()
